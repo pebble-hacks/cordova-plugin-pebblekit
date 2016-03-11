@@ -2,7 +2,3 @@
 
 example/cordova/platforms
 example/cordova/plugins
-
-*.ipr
-*.iml
-.idea/

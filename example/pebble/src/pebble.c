@@ -70,6 +70,10 @@ static void main_window_unload(Window *window) {
   text_layer_destroy(s_event_title_layer);
 }
 
+static void set_no_event() {
+  text_layer_set_text(s_event_title_layer, "No more events for today");
+}
+
 static void inbox_received_callback(DictionaryIterator *iter, void *context) {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "New message received");
 
@@ -84,6 +88,7 @@ static void inbox_received_callback(DictionaryIterator *iter, void *context) {
     title = tuple->value->cstring;
   } else {
     APP_LOG(APP_LOG_LEVEL_ERROR, "No event title found");
+    set_no_event();
     return;
   }
 
@@ -92,6 +97,7 @@ static void inbox_received_callback(DictionaryIterator *iter, void *context) {
     hour = tuple->value->int32;
   } else {
     APP_LOG(APP_LOG_LEVEL_ERROR, "No hour found");
+    set_no_event();
     return;
   }
 
@@ -100,6 +106,7 @@ static void inbox_received_callback(DictionaryIterator *iter, void *context) {
     minute = tuple->value->int32;
   } else {
     APP_LOG(APP_LOG_LEVEL_ERROR, "No minute found");
+    set_no_event();
     return;
   }
 
