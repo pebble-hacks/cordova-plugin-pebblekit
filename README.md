@@ -2,6 +2,358 @@
 
 Create native applications with PebbleKit support using Cordova.
 
+## Usage
+
+* [`isWatchConnected`](#iswatchconnectedsuccesscallback-errorcallback)
+* [`registerPebbleConnectedReceiver`](#registerpebbleconnectedreceiversuccesscallback-errorcallback-keepalive)
+* [`registerPebbleDisconnectedReceiver`](#registerpebbledisconnectedreceiversuccesscallback-errorcallback-keepalive)
+* [`unregisterPebbleConnectedReceiver`](#unregisterpebbleconnectedreceiversuccesscallback-errorcallback)
+* [`unregisterPebbleDisconnectedReceiver`](#unregisterpebbledisconnectedreceiversuccesscallback-errorcallback)
+* [`startAppOnPebble`](#startapponpebbleuuid-successcallback-errorcallback)
+* [`closeAppOnPebble`](#closeapponpebbleuuid-successcallback-errorcallback)
+* [`areAppMessagesSupported`](#areappmessagessupportedsuccesscallback-errorcallback)
+* [`sendAppMessage`](#sendappmessageuuid-data-ackhandler-nackhandler-errorcallback)
+* [`registerReceivedDataHandler`](#registerreceiveddatahandleruuid-successcallback-errorcallback-keepalive)
+* [`unregisterReceivedDataHandler`](#unregisterreceiveddatahandlersuccesscallback-errorcallback)
+* [`registerDataLogReceiver`](#registerdatalogreceiveruuid-successcallback-errorcallback-keepalive)
+* [`unregisterDataLogReceiver`](#unregisterdatalogreceiversuccesscallback-errorcallback)
+
+### isWatchConnected(successCallback, [errorCallback])
+Determine if a Pebble watch is currently connected to the phone.
+
+__Arguments__
+
+* `successCallback` - A callback which is called when the status of the
+connection has been deteremined
+* `errorCalback` - *Optional* A callback which is called if an error has
+occurred.
+
+__Example__
+
+```js
+window.pebblekit.isWatchConnected(function(connected) {
+  console.log('Watch is connected', connected);
+}, function(err) {
+  // error
+});
+```
+
+### registerPebbleConnectedReceiver(successCallback, [errorCallback], [keepAlive])
+
+Register to be notified when a Pebble has been connected to the phone.
+
+__Arguments__
+
+* `successCallback` - A callback which is called when the watch is connected
+* `errorCallback` - *Optional* A callback which is called if an error has
+occurred
+* `keepAlive` - *Optional* set to `true` to keep the receiver alive after the
+phone app has gone to in to the background.  (See [here](#keepalive) for more
+detail)
+
+__Example__
+
+```js
+var keepAlive = false;
+window.pebblekit.registerPebbleConnectedReceiver(function() {
+  // pebble connected
+}, function(err) {
+  // error
+}, keepAlive);
+```
+
+### registerPebbleDisconnectedReceiver(successCallback, [errorCallback], [keepAlive])
+
+Register to be notified when a Pebble has been disconnected from the phone.
+
+__Arguments__
+
+* `successCallback` - A callback which is called when the watch is disconnected
+* `errorCallback` - *Optional* A callback which is called if an error has
+occurred
+* `keepAlive` - *Optional* set to `true` to keep the receiver alive after the
+phone app has gone to in to the background.  (See [here](#keepAlive) for more
+detail)
+
+__Example__
+
+```js
+var keepAlive = false;
+window.pebblekit.registerPebbleDisconnectedReceiver(function() {
+  // pebble disconnected
+}, function(err) {
+  // error
+}, keepAlive);
+```
+
+### unregisterPebbleConnectedReceiver([successCallback], [errorCallback])
+
+Stop being notified about when a pebble is connected to the phone.
+
+__Arguments__
+
+* `successCallback` - *Optional* A callback which is called once the receiver
+has been unregistered
+* `errorCallback` - *Optional* A callback which is called if an error has
+occurred
+
+__Example__
+
+```js
+window.pebblekit.unregisterPebbleConnectedReceiver(function() {
+  // receiver unregistered
+}, function (err) {
+  // error
+});
+```
+
+### unregisterPebbleDisconnectedReceiver([successCallback], [errorCallback])
+
+Stop being notified about when a pebble is disconnected to the phone.
+
+__Arguments__
+
+* `successCallback` - *Optional* A callback which is called once the receiver
+has been unregistered
+* `errorCallback` - *Optional* A callback which is called if an error has
+occurred
+
+__Example__
+
+```js
+window.pebblekit.unregisterPebbleDisconnectedReceiver(function() {
+  // receiver unregistered
+}, function (err) {
+  // error
+});
+```
+
+### startAppOnPebble(uuid, [successCallback], [errorCallback])
+
+Start an application on the pebble with the specified `uuid`.
+
+__Arguments__
+
+* `uuid` - The UUID of the application to start on the watch
+* `successCallback` - *Optional* A callback which is called once the app has
+been started
+* `errorCallback` - *Optional* A callback which is called if an error has
+occurred
+
+__Example__
+
+```js
+window.pebblekit.startAppOnPebble('ebc92429-483e-4b91-b5f2-ead22e7e002d', function() {
+  // app started on pebble
+}, function (err) {
+  // error
+});
+```
+
+### closeAppOnPebble(uuid, [successCallback], [errorCallback])
+
+Close an app on the watch with the specified `uuid`.
+
+__Arguments__
+
+* `uuid` - The UUID of the application to close on the watch
+* `successCallback` - *Optional* A callback which is callled once the app
+has been started
+* `errorCallback` - *Optional* A callback which is called if an error has
+occurred
+
+__Example__
+
+```js
+window.pebblekit.closeAppOnPebble('ebc92429-483e-4b91-b5f2-ead22e7e002d', function() {
+  // App closed on pebble
+}, function (err) {
+  // error
+});
+```
+
+### areAppMessagesSupported(successCallback, [errorCallback])
+
+Determine whether or not the currently connected watch supports
+[`AppMessages`](https://developer.pebble.com/docs/c/Foundation/AppMessage/).
+
+__Arguments__
+
+* `successCallback` - A callback which is called, containing the result of
+whether appmesages
+* `errorCallback` - *Optional* A callback which is called if an error has
+occurred
+
+__Example__
+
+window.pebblekit.areAppMessagesSupported(function(supported) {
+  console.log('AppMessages supported:', supported);
+}, function(err) {
+  // error
+});
+
+### sendAppMessage(uuid, data, ackHandler, nackHandler, [errorCallback])
+
+Send an AppMessage to the watch.
+
+__Arguments__
+
+* `uuid` - The UUID of the pebble application the `AppMessage` should be sent
+to
+* `data` - An `Object` containing data to send to the watch.
+* `ackHandler` - A callback that is called if the `AppMessage` is `ack`ed
+* `nackHandler` - A callback that is called if the `AppMessage` is `nack`ed
+* `errorCallback` - *Optional* A callback that is called if there was a problem
+sending the `AppMessage`
+
+__note__ - Depending on the type of the item in the object to be sent, the C
+app will be able to read the value (from the `Tuple.value` union) according to
+the table below:
+
+| JS Type | C Type  |
+|---------|---------|
+| String  | cstring |
+| Number  | int32   |
+| Array   | data    |
+| Boolean | int16   |
+
+__Example__
+
+```js
+var uuid = "ebc92429-483e-4b91-b5f2-ead22e7e002d";
+var data = {
+  '0': 'String value',
+  '1': 42,
+  '2': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] // Byte array,
+  '3': true
+}
+
+window.pebblekit.sendAppMessage(uuid, data, function() {
+  // app message has been acked
+}, function() {
+  // app message has been nacked
+}, function(err) {
+  // err
+})
+```
+
+### registerReceivedDataHandler(uuid, successCallback, [errorCallback], [keepAlive])
+
+Register a callback for when the specified watch app with the given `uuid`
+sends an `AppMessage`.
+
+__Arguments__
+
+* `uuid` - The UUID of the pebble app in which to be receiving messages from
+* `successCallback` - A callback which is called when a new app message is
+received from the application with the given `uuid`
+* `errorCallback` - *Optional* A callback which is called if an error has
+occurred
+* `keepAlive` - *Optional* set to `true` to keep the receiver alive after the
+phone app has gone to in to the background.  (See [here](#keepAlive) for more
+detail)
+
+__note__ - Acking and Nacking the message is taken care of for you.
+
+__Example__
+
+```js
+var uuid = "ebc92429-483e-4b91-b5f2-ead22e7e002d";
+var keepAlive = false;
+window.pebblekit.registerReceivedDataHandler(uuid, function(data) {
+  console.log('Received data', data);
+}, function (err) {
+  // error
+}, keepAlive)
+```
+
+### unregisterReceivedDataHandler([successCallback], [errorCallback])
+
+Stop listening for `AppMessage`s sent from the watch.
+
+__Arguments__
+
+* `successCallback` - A callback that is called once the data handler has been
+unregistered
+* `errorCallback` - *Optional* A callback that is called if an error has
+occurred
+
+__Example__
+
+```js
+window.pebblekit.unregisterReceivedDataHandler(function() {
+  // received data handler unregistered
+}, function (err) {
+  // error
+});
+```
+
+### registerDataLogReceiver(uuid, successCallback, [errorcallback], [keepAlive])
+
+Register a callback for [data logging](https://developer.pebble.com/guides/communication/datalogging/).
+
+__Arguments__
+
+* `uuid` - The UUID of the pebble app in which to be receiving data from
+* `successCallback` - A callback which is called when new data is available
+* `errorCallback` - *Optional* A callback which is called if an error has
+occurred
+* `keepAlive` - *Optional* set to `true` to keep the receiver alive after the
+phone app has gone to in to the background.  (See [here](#keepAlive) for more
+detail)
+
+__note__ Data will be passed in to the `successCallback` in the following format
+
+```js
+{
+  "logUuid": "<uuid of log>",
+  "timestamp": <value>,
+  "tag": "<tag of transaction>",
+  "sessionFinished": true|false,
+  "value": <value> // either a String, Number, or [Array] of data.
+}
+```
+
+__Example__
+```js
+var uuid = "ebc92429-483e-4b91-b5f2-ead22e7e002d";
+var keepAlive = false;
+window.pebblekit.registerDataLogReceiver(uuid, function (data) {
+  console.log('Received data', data);
+}, function (err) {
+  // error
+}, keepAlive);
+```
+
+### unregisterDataLogReceiver([successCallback], [errorCallback])
+
+Stop listening for data logging messages.
+
+__Arguments__
+
+* `successCallback` - *Optional* A callback which is called once the receiver
+has been unregistered
+* `errorCallback` - *Optional* A callback which is called if an error has
+occurred
+
+__Example__
+
+```js
+window.pebblekit.unregisterDataLogReceiver(function() {
+  // receiver has been unregistered
+}, function (err) {
+  // error
+});
+```
+
+### keepAlive
+Some functions have a `keepAlive` parameter.  By default, this plugin will take
+care of unregistering receivers for you when the app goes into the background
+in order to avoid memory leaks.
+
+If you set this option to `true`, you should make sure to call the
+corresponding `unregisterX()` function when you are done with it.
+
 ## Running the example
 
 ### Dependencies
@@ -17,7 +369,7 @@ project should include Android as a build target)
 device plugged in.  Congrats.  You are now running the companion app for your
 application
 
-*note*: Running `make` with no dependencies will overwrite the source files of
+__note__  Running `make` with no dependencies will overwrite the source files of
 the plugin with the corresponding files in the built android directory.  Read
 [here](#android-1) to understand why
 
