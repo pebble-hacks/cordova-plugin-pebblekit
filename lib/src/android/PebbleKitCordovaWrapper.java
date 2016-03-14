@@ -26,6 +26,8 @@ public class PebbleKitCordovaWrapper extends CordovaPlugin {
 
     private static final String TAG = "PebbleKit";
 
+    private static final int ARGS_INDEX_APP_MESSAGE_DATA = 1;
+
     private CallbackContext mPebbleConnectedCallbackContext;
     private CallbackContext mPebbleDisconnectedCallbackContext;
     private CallbackContext mPebbleSendAppMessageCallbackContext;
@@ -43,8 +45,6 @@ public class PebbleKitCordovaWrapper extends CordovaPlugin {
 
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) {
-        Log.i(TAG, String.format("Action passed: %s", action));
-
         if (action.equals("isWatchConnected")) {
             isWatchConnected(callbackContext);
             return true;
@@ -205,21 +205,13 @@ public class PebbleKitCordovaWrapper extends CordovaPlugin {
     }
 
     private void sendAppMessage(JSONArray args, CallbackContext callbackContext) {
-        if (args.length() != 2) {
-            callbackContext.error(String.format("Expected two arguments, but received %d", args.length()));
-            return;
-        }
-
-        Log.d(TAG, String.format("sendAppMessage(): %s", args.toString()));
-
         UUID appUuid = Util.getUuidFromArgs(args, callbackContext);
         if (appUuid == null) return;
 
         JSONObject data;
         try {
-            data = args.getJSONObject(1);
+            data = args.getJSONObject(ARGS_INDEX_APP_MESSAGE_DATA);
         } catch (JSONException e) {
-            Log.e(TAG, "Second argument must be JSON Object containing data", e);
             callbackContext.error("Second argument must be JSON Object containing data");
             return;
         }
@@ -227,14 +219,14 @@ public class PebbleKitCordovaWrapper extends CordovaPlugin {
         PebbleDictionary pebbleDictionary = Util.jsonToPebbleDictionary(data, callbackContext);
         if (pebbleDictionary == null) return;
 
-        Log.d(TAG, String.format("serialized data: %s", pebbleDictionary.toJsonString()));
-
         mPebbleSendAppMessageCallbackContext = callbackContext;
-        Util.sendLongLivedPluginResult(mPebbleSendAppMessageCallbackContext);
 
-        PebbleKit.registerReceivedAckHandler(cordova.getActivity(), getPebbleAckReceiver(appUuid));
-        PebbleKit.registerReceivedNackHandler(cordova.getActivity(), getPebbleNackReceiver(appUuid));
+        mPebbleAckReceiver = getPebbleAckReceiver(appUuid);
+        mPebbleNackReceiver = getPebbleNackReceiver(appUuid);
+        PebbleKit.registerReceivedAckHandler(cordova.getActivity(), mPebbleAckReceiver);
+        PebbleKit.registerReceivedNackHandler(cordova.getActivity(), mPebbleNackReceiver);
         PebbleKit.sendDataToPebble(cordova.getActivity(), appUuid, pebbleDictionary);
+        Util.sendLongLivedPluginResult(mPebbleSendAppMessageCallbackContext);
     }
 
     private void registerReceivedDataHandler(JSONArray args, CallbackContext callbackContext) {
@@ -248,8 +240,6 @@ public class PebbleKitCordovaWrapper extends CordovaPlugin {
 
         Boolean keepAlive = Util.getKeepAliveFromArgs(args, 1, callbackContext);
         if (keepAlive == null) return;
-
-        Log.d(TAG, String.format("Registering received data handler for uuid %s", uuid.toString()));
 
         mPebbleDataReceivedCallbackContext = callbackContext;
         mPebbleDataReceiver = getPebbleDataReceiver(uuid);
@@ -306,7 +296,7 @@ public class PebbleKitCordovaWrapper extends CordovaPlugin {
     private BroadcastReceiver getPebbleConnectedBroadcastreceiver() {
         if (mPebbleConnectedBroadcastReceiver != null)  return mPebbleConnectedBroadcastReceiver;
 
-        mPebbleConnectedBroadcastReceiver = new BroadcastReceiver() {
+        return new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (mPebbleConnectedCallbackContext == null) {
@@ -314,20 +304,17 @@ public class PebbleKitCordovaWrapper extends CordovaPlugin {
                     return;
                 }
 
-                Log.d(TAG, "Connected!");
                 PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
                 pluginResult.setKeepCallback(true);
                 mPebbleConnectedCallbackContext.sendPluginResult(pluginResult);
             }
         };
-
-        return mPebbleConnectedBroadcastReceiver;
     }
 
     private BroadcastReceiver getPebbleDisconnectedBroadcastReceiver() {
         if (mPebbleDisconnectedBroadcastReceiver != null) return mPebbleDisconnectedBroadcastReceiver;
 
-        mPebbleDisconnectedBroadcastReceiver = new BroadcastReceiver() {
+        return new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (mPebbleDisconnectedCallbackContext == null) {
@@ -335,46 +322,36 @@ public class PebbleKitCordovaWrapper extends CordovaPlugin {
                     return;
                 }
 
-                Log.d(TAG, "Disconnected!");
                 PluginResult pluginResult = new PluginResult(PluginResult.Status.OK);
                 pluginResult.setKeepCallback(true);
                 mPebbleDisconnectedCallbackContext.sendPluginResult(pluginResult);
             }
         };
-        return mPebbleDisconnectedBroadcastReceiver;
     }
 
     private PebbleKit.PebbleAckReceiver getPebbleAckReceiver(UUID appUuid) {
         if (mPebbleAckReceiver != null) return mPebbleAckReceiver;
 
-        mPebbleAckReceiver = new PebbleKit.PebbleAckReceiver(appUuid) {
+        return new PebbleKit.PebbleAckReceiver(appUuid) {
             @Override
             public void receiveAck(Context context, int transactionId) {
                 handleAckNackResponse(true, transactionId);
             }
         };
-        return mPebbleAckReceiver;
     }
 
     private PebbleKit.PebbleNackReceiver getPebbleNackReceiver(UUID appUuid) {
         if (mPebbleNackReceiver != null) return mPebbleNackReceiver;
 
-        mPebbleNackReceiver = new PebbleKit.PebbleNackReceiver(appUuid) {
+        return new PebbleKit.PebbleNackReceiver(appUuid) {
             @Override
             public void receiveNack(Context context, int transactionId) {
                 handleAckNackResponse(false, transactionId);
             }
         };
-        return mPebbleNackReceiver;
     }
 
     private void handleAckNackResponse(boolean isAck, int transactionId) {
-        Log.d(TAG, String.format(
-                "Received %s for transaction %d",
-                isAck ? "ack" : "nack",
-                transactionId
-        ));
-
         if (mPebbleSendAppMessageCallbackContext == null) {
             Log.e(TAG, "mPebbleSendAppMessageCallbackContext is null");
             return;
@@ -403,7 +380,6 @@ public class PebbleKitCordovaWrapper extends CordovaPlugin {
         return new PebbleKit.PebbleDataReceiver(appUuid) {
             @Override
             public void receiveData(Context context, int transactionId, PebbleDictionary data) {
-                Log.d(TAG, "receiveData");
                 if (mPebbleDataReceivedCallbackContext == null) {
                     Log.e(TAG, "mPebbleDataReceivedCallbackContext is null");
                     return;
@@ -418,10 +394,6 @@ public class PebbleKitCordovaWrapper extends CordovaPlugin {
                     PebbleKit.sendNackToPebble(cordova.getActivity(), transactionId);
                     return;
                 }
-
-                try {
-                    Log.d(TAG, String.format("acking with data %s", jsonData.toString(2)));
-                } catch (JSONException e) {}
 
                 PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, jsonData);
                 pluginResult.setKeepCallback(true);
@@ -446,8 +418,6 @@ public class PebbleKitCordovaWrapper extends CordovaPlugin {
 
             @Override
             public void receiveData(Context context, UUID logUuid, Long timestamp, Long tag, Long data) {
-                Log.d(TAG, String.format("receiveData: %s %d %d %d", logUuid.toString(), timestamp, tag, data));
-
                 if (mPebbleDataLogCallbackContext == null) {
                     Log.e(TAG, "mPebbleDataLogCallbackContext is null");
                 }
@@ -466,7 +436,6 @@ public class PebbleKitCordovaWrapper extends CordovaPlugin {
 
             @Override
             public void receiveData(Context context, UUID logUuid, Long timestamp, Long tag, byte[] data) {
-                Log.d(TAG, String.format("receiveData: %s %d %d %s", logUuid.toString(), timestamp, tag, Base64.encodeToString(data, Base64.NO_WRAP)));
                 if (mPebbleDataLogCallbackContext == null) {
                     Log.e(TAG, "mPebbleDataLogCallbackContext is null");
                 }
@@ -485,7 +454,6 @@ public class PebbleKitCordovaWrapper extends CordovaPlugin {
 
             @Override
             public void receiveData(Context context, UUID logUuid, Long timestamp, Long tag, int data) {
-                Log.d(TAG, String.format("receiveData: %s %d %d %d", logUuid.toString(), timestamp, tag, data));
                 if (mPebbleDataLogCallbackContext == null) {
                     Log.e(TAG, "mPebbleDataLogCallbackContext is null");
                 }
@@ -504,7 +472,6 @@ public class PebbleKitCordovaWrapper extends CordovaPlugin {
 
             @Override
             public void onFinishSession(Context context, UUID logUuid, Long timestamp, Long tag) {
-                Log.d(TAG, String.format("session finished: %s %d %d", logUuid.toString(), timestamp, tag));
                 if (mPebbleDataLogCallbackContext == null) {
                     Log.e(TAG, "mPebbleDataLogCallbackContext is null");
                 }

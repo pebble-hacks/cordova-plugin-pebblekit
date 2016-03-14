@@ -98,20 +98,6 @@ public class Util {
             }
         }
 
-        try {
-            Log.d(TAG, "Got data");
-            Log.d(TAG, pebbleKitAppMessage.toString(2));
-        } catch (JSONException e) {
-            Log.e(TAG, "Couldn't format pebblekit app message");
-        }
-
-        try {
-            Log.d(TAG, "transformed into");
-            Log.d(TAG, appMessage.toString(2));
-        } catch (JSONException e) {
-            Log.e(TAG, "Couldn't format transformed app message");
-        }
-
         return appMessage;
     }
 

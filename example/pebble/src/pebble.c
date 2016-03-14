@@ -28,14 +28,14 @@ static void main_window_load(Window *window) {
   GRect bounds = layer_get_bounds(window_layer);
 
   s_time_layer = text_layer_create(GRect(
-      0, 0, bounds.size.w, 42));
+      bounds.origin.x, bounds.origin.y, bounds.size.w, 42));
   text_layer_set_background_color(s_time_layer, GColorClear);
   text_layer_set_font(s_time_layer, fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD));
   text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
   text_layer_set_text(s_time_layer, "00:00");
 
   s_event_title_layer = text_layer_create(GRect(
-      0, bounds.size.h / 2, bounds.size.w, 60));
+      bounds.origin.x, bounds.size.h / 2, bounds.size.w, 60));
   text_layer_set_background_color(s_event_title_layer, GColorClear);
   text_layer_set_font(s_event_title_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));;
   text_layer_set_text_alignment(s_event_title_layer, GTextAlignmentCenter);
@@ -54,8 +54,8 @@ static void request_event_data() {
     return;
   }
 
-  int value = 0;
-  dict_write_int(out_iter, AppKeyRequestEvent, &value, sizeof(int), true);
+  int dummy = 0;
+  dict_write_int(out_iter, AppKeyRequestEvent, &dummy, sizeof(int), true);
   result = app_message_outbox_send();
 
   if (result != APP_MSG_OK) {
@@ -77,13 +77,11 @@ static void set_no_event() {
 static void inbox_received_callback(DictionaryIterator *iter, void *context) {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "New message received");
 
-  Tuple *tuple;
-
   char *title;
   int32_t hour;
   int32_t minute;
 
-  tuple = dict_find(iter, AppKeyEventTitle);
+  Tuple *tuple = dict_find(iter, AppKeyEventTitle);
   if (tuple) {
     title = tuple->value->cstring;
   } else {
@@ -120,8 +118,10 @@ static void inbox_received_callback(DictionaryIterator *iter, void *context) {
       sizeof(s_event_time_buffer),
       clock_is_24h_style() ? "%H:%M" : "%I:%M",
       tick_time
-    );
+  );
 
+  // Pick a large enough size to handle particulartly length
+  // event titles
   static char s_event_buffer[100];
   snprintf(
       s_event_buffer,
@@ -168,7 +168,9 @@ static void init() {
   app_message_register_outbox_sent(outbox_sent_callback);
   app_message_register_outbox_failed(outbox_failed_callback);
 
-  const uint32_t inbox_size = 54;
+  // Pick a large enough value for app messages that may contian particularly
+  // lengthy event titles
+  const uint32_t inbox_size = 150;
   const uint32_t outbox_size = inbox_size;
   app_message_open(inbox_size, outbox_size);
 

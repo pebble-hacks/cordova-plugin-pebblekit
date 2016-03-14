@@ -8,7 +8,7 @@
   "targetPlatforms": ["aplite", "basalt", "chalk"],
   "enableMultiJS": true,
   "watchapp": {
-    "watchface": true
+    "watchface": false
   },
   "appKeys": {
     "key_number": 0,

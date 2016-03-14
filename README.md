@@ -1,8 +1,13 @@
-# cordova-plugin-pebblekit
+# Cordova-plugin-pebblekit
 
-Create native applications with PebbleKit support using Cordova.
+Create native applications with PebbleKit support using
+[Cordova](https://cordova.apache.org/).
 
-## Usage
+No need for Java or Objective C to create mobile apps that communicate with your
+Pebble application.  Use one framework and the vast set of existing Cordova
+plugins to extend the functionality of your watch app/face.
+
+## Available APIs
 
 * [`isWatchConnected`](#iswatchconnectedsuccesscallback-errorcallback)
 * [`registerPebbleConnectedReceiver`](#registerpebbleconnectedreceiversuccesscallback-errorcallback-keepalive)
@@ -17,6 +22,8 @@ Create native applications with PebbleKit support using Cordova.
 * [`unregisterReceivedDataHandler`](#unregisterreceiveddatahandlersuccesscallback-errorcallback)
 * [`registerDataLogReceiver`](#registerdatalogreceiveruuid-successcallback-errorcallback-keepalive)
 * [`unregisterDataLogReceiver`](#unregisterdatalogreceiversuccesscallback-errorcallback)
+
+## Usage
 
 ### isWatchConnected(successCallback, [errorCallback])
 Determine if a Pebble watch is currently connected to the phone.
@@ -186,11 +193,13 @@ occurred
 
 __Example__
 
+```c
 window.pebblekit.areAppMessagesSupported(function(supported) {
   console.log('AppMessages supported:', supported);
 }, function(err) {
   // error
 });
+```
 
 ### sendAppMessage(uuid, data, ackHandler, nackHandler, [errorCallback])
 
@@ -219,6 +228,8 @@ the table below:
 
 __Example__
 
+Sending from the JS side
+
 ```js
 var uuid = "ebc92429-483e-4b91-b5f2-ead22e7e002d";
 var data = {
@@ -236,6 +247,25 @@ window.pebblekit.sendAppMessage(uuid, data, function() {
   // err
 })
 ```
+
+Reading the data on the C side
+
+```C
+#define APP_KEY_STRING_VALUE 0
+
+static void inbox_received_callback(DictionaryIterator *iter, void *context) {
+  Tuple *tuple;
+
+  tuple = dict_find(iter, APP_KEY_STRING_VALUE)
+  if (tuple) {
+    char* value_string = tuple->value->cstring;
+    APP_LOG(APP_LOG_LEVEL_DEBUG, value_string); // 'String value'
+  }
+}
+```
+
+To read more about reading `AppMessage`s on the C side, see the
+[documentation](https://developer.pebble.com/guides/communication/sending-and-receiving-data/)
 
 ### registerReceivedDataHandler(uuid, successCallback, [errorCallback], [keepAlive])
 
@@ -257,14 +287,54 @@ __note__ - Acking and Nacking the message is taken care of for you.
 
 __Example__
 
+Sending from the C side
+
+```C
+typedef enum {
+  AppKeyInt = 0,
+  AppKeyString = 1,
+  AppKeyData = 2
+} AppKeys
+
+static void send_app_msg() {
+  DictionaryIterator *out_iter;
+  AppMessageResult result = app_message_outbox_begin(&out_iter);
+
+  if (result != APP_MSG_OK) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Error preparing outbox: %d", (int) result);
+    return;
+  }
+
+  int value_int = 42;
+  char* value_string = "Message from C";
+  uint8_t value_data[] = {0, 1, 2, 3, 4, 5, 6, 7, 9};
+
+  dict_write_int(out_iter, AppKeyInt, &value, sizeof(int), true);
+  dict_write_cstring(out_iter, AppKeyString, "message from C");
+  dict_write_data(out_iter, AppKeyData, data, sizeof(data));
+  result = app_message_outbox_send();
+}
+```
+
+Receiving on the JS side
+
 ```js
 var uuid = "ebc92429-483e-4b91-b5f2-ead22e7e002d";
 var keepAlive = false;
 window.pebblekit.registerReceivedDataHandler(uuid, function(data) {
-  console.log('Received data', data);
+  console.log('received data', JSON.stringify(data, 2));
+
+  /*
+  got data {
+    "0": 0,
+    "1": "message from C",
+    "2": "AAECAwQFBgcJ"
+  }
+  */
+
 }, function (err) {
   // error
-}, keepAlive)
+}, keepAlive);
 ```
 
 ### unregisterReceivedDataHandler([successCallback], [errorCallback])
@@ -310,16 +380,66 @@ __note__ Data will be passed in to the `successCallback` in the following format
   "timestamp": <value>,
   "tag": "<tag of transaction>",
   "sessionFinished": true|false,
-  "value": <value> // either a String, Number, or [Array] of data.
+  "value": <value> // either a String, Number, or String representation of
+                   // binary data.
 }
 ```
 
 __Example__
+
+Logging from the C side
+
+```C
+#define LOG_TAG 42
+
+static DataLoggingSessionRef s_session_ref;
+
+static void log_data() {
+  const int value = 16;
+  const uint32_t num_values = 1;
+
+  // Log a single value
+  DataLoggingResult result = data_logging_log(s_session_ref, &value, num_values);
+
+  // Was the value successfully stored? If it failed, print the reason
+  if(result != DATA_LOGGING_SUCCESS) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Error logging data: %d", (int)result);
+  }
+}
+
+static void init() {
+  // ...
+
+  bool continue_session = false;
+  s_session_ref = data_logging_create(
+      LOG_TAG,
+      DATA_LOGGING_INT,
+      sizeof(int),
+      continue_session
+  );
+
+  // ...
+}
+```
+
+For more information on logging data with the Pebble SDK, see the
+[documentation](https://developer.pebble.com/guides/communication/datalogging/)
+
 ```js
 var uuid = "ebc92429-483e-4b91-b5f2-ead22e7e002d";
 var keepAlive = false;
 window.pebblekit.registerDataLogReceiver(uuid, function (data) {
-  console.log('Received data', data);
+  console.log('Received data', JSON.stringify(data, null, 2));
+
+  /*
+  Received data {
+    "logUuid": "20dab442-c6d9-4e7f-afe3-a733bd261699",
+    "timestamp": 1457982310,
+    "tag": 42,
+    "sessionFinished": false,
+    "value": 16
+  }
+  */
 }, function (err) {
   // error
 }, keepAlive);
@@ -357,8 +477,9 @@ corresponding `unregisterX()` function when you are done with it.
 ## Running the example
 
 ### Dependencies
-1. `adb` should be in your path
-2. install cordova, `npm install -g cordova`
+1. Ensure [`adb`](http://developer.android.com/tools/help/adb.html) is in your
+PATH.
+2. Install Cordova, `npm install -g cordova`
 
 ### Build the Cordova Application
 1. `cd example/cordova`
@@ -371,14 +492,12 @@ application
 
 __note__  Running `make` with no dependencies will overwrite the source files of
 the plugin with the corresponding files in the built android directory.  Read
-[here](#android-1) to understand why
+[here](#android-1) to understand why.
 
 ### Build the Pebble Application
 1. `cd example/cordova`
 2. `pebble build && pebble install --phone <PHONE_IP>`
 For more help, see the [documentation](https://developer.pebble.com/guides/tools-and-resources/pebble-tool/)
-
-When changes are made to the plugin javascript files,
 
 ## Development
 ### Project structure
@@ -401,7 +520,7 @@ In the `pebblekit.js` file, a function `exec` is made available
 `exec(successCallback, errorCallback, className, action, [args])`
 
 Calling this function will call a function in the native code, aptly named
-`execute()`.  The arguments to the js side of the `exec()` call are as follows
+`execute()`.  The arguments to the JS side of the `exec()` call are as follows
 
 - `successCallback` is a function which is executed if the corresponding native
 component deems the method call a success
@@ -465,7 +584,7 @@ webview running on the phone.
 #### Android
 When you build/run the project with Cordova, the source files of the plugin
 are copied to the directory
-`example/cordova/platforms/android/com/pebble/cordovapebblekit/`
+`example/cordova/platforms/android/com/pebble/cordovapebblekit/`.
 
 You can open Android Studio to the `example/cordova/platforms/android` directory
 and you will be able to explore the source code, set breakpoints, and view
@@ -473,10 +592,11 @@ the logcat just like any other Android project.
 
 With this, you have the full power of the IDE, including code completion,
 refactoring, formatting, etc.  The only caveat is that you are editing the
-built files instead of the source files of the plugin.  Because of this, I
-have the makefile setup to copy the Plugin files from the
+built files instead of the source files of the plugin.  Because of this, the
+makefile has been setup to copy the Plugin files from the
 `example/cordova/platforms/android` directory to the `lib/src/android`
-This way, you will not lose the changes you made to the plugin source files.
+This way, changes made to the plugin source files through the IDE will not be
+lost.
 
 Running `make` with no arugments will copy the files over, read the plugin,
 and the run the project on a plugged in android device.
