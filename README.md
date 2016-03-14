@@ -5,7 +5,8 @@ Create native applications with PebbleKit support using
 
 No need for Java or Objective C to create mobile apps that communicate with your
 Pebble application.  Use one framework and the vast set of existing Cordova
-plugins to extend the functionality of your watch app/face.
+[plugins](https://cordova.apache.org/plugins/) to extend the functionality of
+your watch app/face.
 
 ## Available APIs
 
@@ -228,7 +229,7 @@ the table below:
 
 __Example__
 
-Sending from the JS side
+Sending from the JS side:
 
 ```js
 var uuid = "ebc92429-483e-4b91-b5f2-ead22e7e002d";
@@ -248,7 +249,7 @@ window.pebblekit.sendAppMessage(uuid, data, function() {
 })
 ```
 
-Reading the data on the C side
+Reading the data on the C side:
 
 ```C
 #define APP_KEY_STRING_VALUE 0
@@ -287,7 +288,7 @@ __note__ - Acking and Nacking the message is taken care of for you.
 
 __Example__
 
-Sending from the C side
+Sending from the C side:
 
 ```C
 typedef enum {
@@ -313,19 +314,23 @@ static void send_app_msg() {
   dict_write_cstring(out_iter, AppKeyString, "message from C");
   dict_write_data(out_iter, AppKeyData, data, sizeof(data));
   result = app_message_outbox_send();
+
+  if (result != APP_MSG_OK) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Error sending the outbox: %d", (int) result);
+  }
 }
 ```
 
-Receiving on the JS side
+Receiving on the JS side:
 
 ```js
 var uuid = "ebc92429-483e-4b91-b5f2-ead22e7e002d";
 var keepAlive = false;
 window.pebblekit.registerReceivedDataHandler(uuid, function(data) {
-  console.log('received data', JSON.stringify(data, 2));
+  console.log('Received data', JSON.stringify(data));
 
   /*
-  got data {
+  Received data {
     "0": 0,
     "1": "message from C",
     "2": "AAECAwQFBgcJ"
@@ -372,7 +377,8 @@ occurred
 phone app has gone to in to the background.  (See [here](#keepAlive) for more
 detail)
 
-__note__ Data will be passed in to the `successCallback` in the following format
+__note__ Data will be passed in to the `successCallback` in the following
+format:
 
 ```js
 {
@@ -387,7 +393,7 @@ __note__ Data will be passed in to the `successCallback` in the following format
 
 __Example__
 
-Logging from the C side
+Logging from the C side:
 
 ```C
 #define LOG_TAG 42
@@ -425,11 +431,13 @@ static void init() {
 For more information on logging data with the Pebble SDK, see the
 [documentation](https://developer.pebble.com/guides/communication/datalogging/)
 
+Reading the data on the JS side:
+
 ```js
 var uuid = "ebc92429-483e-4b91-b5f2-ead22e7e002d";
 var keepAlive = false;
 window.pebblekit.registerDataLogReceiver(uuid, function (data) {
-  console.log('Received data', JSON.stringify(data, null, 2));
+  console.log('Received data', JSON.stringify(data));
 
   /*
   Received data {

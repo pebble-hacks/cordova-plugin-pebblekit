@@ -54,7 +54,7 @@ static void request_event_data() {
     return;
   }
 
-  int dummy = 0;
+  const int dummy = 0;
   dict_write_int(out_iter, AppKeyRequestEvent, &dummy, sizeof(int), true);
   result = app_message_outbox_send();
 
@@ -120,8 +120,7 @@ static void inbox_received_callback(DictionaryIterator *iter, void *context) {
       tick_time
   );
 
-  // Pick a large enough size to handle particulartly length
-  // event titles
+  // Pick a large enough size to handle particularly lengthy event titles.
   static char s_event_buffer[100];
   snprintf(
       s_event_buffer,
@@ -168,8 +167,8 @@ static void init() {
   app_message_register_outbox_sent(outbox_sent_callback);
   app_message_register_outbox_failed(outbox_failed_callback);
 
-  // Pick a large enough value for app messages that may contian particularly
-  // lengthy event titles
+  // Pick a large enough size to handle App Messages with
+  // particularly lengthy event titles.
   const uint32_t inbox_size = 150;
   const uint32_t outbox_size = inbox_size;
   app_message_open(inbox_size, outbox_size);

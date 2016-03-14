@@ -40,11 +40,6 @@ var app = {
   onDeviceReady: function() {
     app.receivedEvent('deviceready');
     app.pebbleKit();
-
-    window.pebblekit.registerDataLogReceiver(uuid, function (data) {
-      console.log('Received data', JSON.stringify(data, null, 2));
-    });
-    console.log('registered data log receiver');
   },
 
   // Update DOM on a Received Event
@@ -61,7 +56,6 @@ var app = {
 
   pebbleKit: function() {
     window.pebblekit.registerReceivedDataHandler(uuid, function(message) {
-      console.log('got data', JSON.stringify(message, null, 2));
       if (message['0'] !== 0) {
         console.log('unrecognized app message', message);
         return;
