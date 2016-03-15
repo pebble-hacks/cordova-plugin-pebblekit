@@ -1,0 +1,21 @@
+{
+  "uuid": "ebc92429-483e-4b91-b5f2-ead22e7e002d",
+  "shortName": "Cordova Example",
+  "longName": "Cordova Example",
+  "companyName": "Pebble",
+  "versionLabel": "1.0",
+  "sdkVersion": "3",
+  "targetPlatforms": ["aplite", "basalt", "chalk"],
+  "enableMultiJS": true,
+  "watchapp": {
+    "watchface": true
+  },
+  "appKeys": {
+    "key_number": 0,
+    "key_bytes": 1,
+    "key_string": 2
+  },
+  "resources": {
+    "media": []
+  }
+}
