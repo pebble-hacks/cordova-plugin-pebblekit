@@ -13,7 +13,6 @@
     <clobbers target="pebblekit" />
   </js-module>
 
-  <framework src="com.getpebble:pebblekit:3.0.0"/>
 
   <platform name="android">
     <config-file target="res/xml/config.xml" parent="/*">
@@ -31,5 +30,36 @@
     <source-file
       src="src/android/Util.java"
       target-dir="src/com/pebble/cordovapebblekit"/>
+
+    <framework src="com.getpebble:pebblekit:3.0.0"/>
+  </platform>
+
+  <platform name="ios">
+    <config-file target="config.xml" parent="/*">
+      <feature name="PebbleKitCordovaWrapper">
+        <param
+          name="ios-package"
+          value="PebbleKitCordovaWrapper"/>
+      </feature>
+
+    </config-file>
+
+    <header-file src="src/ios/PebbleKitCordovaWrapper.h"/>
+    <source-file src="src/ios/PebbleKitCordovaWrapper.m"/>
+
+    <config-file target="*-Info.plist" parent="UISupportedExternalAccessoryProtocols">
+      <array>
+        <string>com.getpebble.public</string>
+      </array>
+    </config-file>
+
+    <framework src="ExternalAccessory.framework" />
+    <framework src="libz.dylib" />
+    <framework src="CoreBluetooth.framework" />
+    <framework src="CoreMotion.framework" />
+    <framework src="CFNetwork.framework" />
+    <framework src="MessageUI.framework" />
+
+    <framework src="src/ios/PebbleKit.framework" custom="true"/>
   </platform>
 </plugin>
