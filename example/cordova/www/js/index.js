@@ -39,9 +39,13 @@ var app = {
   // function, we must explicitly call 'app.receivedEvent(...);'
   onDeviceReady: function() {
     app.receivedEvent('deviceready');
-
-    window.pebblekit.isWatchConnected();
     // app.pebbleKit();
+  },
+
+  test: function() {
+    window.pebblekit.setupIos(uuid, function () {
+      console.log('ios is setup');
+    });
   },
 
   // Update DOM on a Received Event
