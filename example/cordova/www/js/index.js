@@ -45,6 +45,18 @@ var app = {
   test: function() {
     window.pebblekit.setupIos(uuid, function () {
       console.log('ios is setup');
+
+      window.pebblekit.registerPebbleConnectedReceiver(function() {
+        console.log('pebble connected');
+      });
+
+      window.pebblekit.registerPebbleDisconnectedReceiver(function () {
+        console.log('pebble disconnected');
+      });
+
+      window.pebblekit.startAppOnPebble(uuid, function () {
+        console.log('started app on pebble with uuid', uuid);
+      });
     });
   },
 

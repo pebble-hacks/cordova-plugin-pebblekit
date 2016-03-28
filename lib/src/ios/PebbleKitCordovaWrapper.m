@@ -22,7 +22,9 @@
 @implementation PebbleKitCordovaWrapper
 
 -(void)pebbleCentral:(PBPebbleCentral *)central watchDidConnect:(PBWatch *)watch isNew:(BOOL)isNew {
+    NSLog(@"watch did connect");
     if (self.setupCallbackId) {
+        NSLog(@"Responding to setup");
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.setupCallbackId];
         self.setupCallbackId = nil;
@@ -42,14 +44,14 @@
 }
 
 -(void)pebbleCentral:(PBPebbleCentral *)central watchDidDisconnect:(PBWatch *)watch {
-    if (self.watch == watch) {
-        self.watch = nil;
-    }
-
     if (self.pebbleDisconnectedCallbackId) {
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [pluginResult setKeepCallbackAsBool:YES];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.pebbleDisconnectedCallbackId];
+    }
+
+    if (self.watch == watch) {
+        self.watch = nil;
     }
 }
 
@@ -82,33 +84,58 @@
 
 -(void)registerPebbleConnectedReceiver:(CDVInvokedUrlCommand *)command {
     if (self.pebbleConnectedCallbackId) {
-        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Pebble Connected Receiver already registered"];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Pebble connected receiver already registered"];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
 
     self.pebbleConnectedKeepAlive = [command.arguments objectAtIndex:0];
     self.pebbleConnectedCallbackId = command.callbackId;
-    
+
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
     [pluginResult setKeepCallbackAsBool:YES];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:self.pebbleConnectedCallbackId];
 }
 
 -(void)registerPebbleDisconnectedReceiver:(CDVInvokedUrlCommand *)command {
-    
     if (self.pebbleDisconnectedCallbackId) {
-        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Pebble Disconnected Receiver already registered"];
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Pebble disconnected receiver already registered"];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         return;
     }
-    
+
     self.pebbleDisconnectedKeepAlive = [command.arguments objectAtIndex:0];
     self.pebbleDisconnectedCallbackId = command.callbackId;
-    
+
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
     [pluginResult setKeepCallbackAsBool:YES];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:self.pebbleDisconnectedCallbackId];
+}
+
+-(void)unregisterPebbleConnectedReceiver:(CDVInvokedUrlCommand *)command {
+    CDVPluginResult *pluginResult;
+
+    if (self.pebbleConnectedCallbackId) {
+        self.pebbleConnectedCallbackId = nil;
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    } else {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"No Pebble connected receiver registered"];
+    }
+
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+-(void)unregisterPebbleDisconnectedReceiver:(CDVInvokedUrlCommand *)command {
+    CDVPluginResult *pluginResult;
+
+    if (self.pebbleDisconnectedCallbackId) {
+        self.pebbleDisconnectedCallbackId = nil;
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+    } else {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"No Pebble disconnected receiver registered"];
+    }
+
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 @end
