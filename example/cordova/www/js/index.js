@@ -39,25 +39,26 @@ var app = {
   // function, we must explicitly call 'app.receivedEvent(...);'
   onDeviceReady: function() {
     app.receivedEvent('deviceready');
-    // app.pebbleKit();
-  },
 
-  test: function() {
     window.pebblekit.setupIos(uuid, function () {
       console.log('ios is setup');
 
-      window.pebblekit.registerPebbleConnectedReceiver(function() {
-        console.log('pebble connected');
+      window.pebblekit.registerReceivedDataHandler(uuid, function (data) {
+        console.log('got data', data);
       });
 
-      window.pebblekit.registerPebbleDisconnectedReceiver(function () {
-        console.log('pebble disconnected');
-      });
-
-      window.pebblekit.startAppOnPebble(uuid, function () {
-        console.log('started app on pebble with uuid', uuid);
+      window.pebblekit.sendAppMessage(uuid, {
+        '0': 42,
+        '1': 'string value',
+        '2': true
+      }, function (transactionId) {
+        console.log('ack', transactionId);
+      }, function (transactionId) {
+        console.log('nack', transactionId);
       });
     });
+
+    // app.pebbleKit();
   },
 
   // Update DOM on a Received Event
@@ -154,7 +155,6 @@ var app = {
     function calendarFindError(message) {
       console.log(message);
     }
-
   },
 };
 

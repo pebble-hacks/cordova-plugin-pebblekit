@@ -13,7 +13,6 @@
     <clobbers target="pebblekit" />
   </js-module>
 
-
   <platform name="android">
     <config-file target="res/xml/config.xml" parent="/*">
       <feature name="PebbleKitCordovaWrapper">
@@ -60,7 +59,7 @@
     <framework src="CFNetwork.framework" />
     <framework src="MessageUI.framework" />
 
-    <framework src="src/ios/PebbleKit.framework" weak="true" custom="true"/>
+    <framework src="src/ios/PebbleKit.framework" custom="true"/>
 
     <hook type="after_plugin_install" src="scripts/ios/codeSignOnCopy.js"/>
   </platform>

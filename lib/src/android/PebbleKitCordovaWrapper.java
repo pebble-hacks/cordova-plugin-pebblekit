@@ -4,7 +4,6 @@ package com.pebble.cordovapebblekit;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Base64;
 import android.util.Log;
 
 import com.getpebble.android.kit.PebbleKit;
@@ -32,20 +31,24 @@ public class PebbleKitCordovaWrapper extends CordovaPlugin {
     private CallbackContext mPebbleDisconnectedCallbackContext;
     private CallbackContext mPebbleSendAppMessageCallbackContext;
     private CallbackContext mPebbleDataReceivedCallbackContext;
-    private CallbackContext mPebbleDataLogCallbackContext;
 
     private BroadcastReceiver mPebbleConnectedBroadcastReceiver;
     private BroadcastReceiver mPebbleDisconnectedBroadcastReceiver;
     private PebbleKit.PebbleAckReceiver mPebbleAckReceiver;
     private PebbleKit.PebbleNackReceiver mPebbleNackReceiver;
     private PebbleKit.PebbleDataReceiver mPebbleDataReceiver;
-    private PebbleKit.PebbleDataLogReceiver mPebbleDataLogReceiver;
 
     private final Map<BroadcastReceiver, Boolean> mKeepReceiversAliveMap = new HashMap<BroadcastReceiver, Boolean>();
 
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) {
-        if (action.equals("isWatchConnected")) {
+
+        if (action.equals("setupIos")) {
+            // iOS specific method, no Android implementation necessary.
+            callbackContext.success();
+            return true;
+
+        } else if (action.equals("isWatchConnected")) {
             isWatchConnected(callbackContext);
             return true;
 
@@ -87,14 +90,6 @@ public class PebbleKitCordovaWrapper extends CordovaPlugin {
 
         } else if (action.equals("unregisterReceivedDataHandler")) {
             unregisterReceivedDataHandler(callbackContext);
-            return true;
-
-        } else if (action.equals("registerDataLogReceiver")) {
-            registerDataLogReceiver(args, callbackContext);
-            return true;
-
-        } else if (action.equals("unregisterDataLogReceiver")) {
-            unregisterDataLogReceiver(callbackContext);
             return true;
         }
 
@@ -261,38 +256,6 @@ public class PebbleKitCordovaWrapper extends CordovaPlugin {
         callbackContext.success();
     }
 
-    private void registerDataLogReceiver(JSONArray args, CallbackContext callbackContext) {
-        if (mPebbleDataLogReceiver != null) {
-            callbackContext.error("Data log receiver already registered");
-            return;
-        }
-
-        UUID uuid = Util.getUuidFromArgs(args, callbackContext);
-        if (uuid == null) return;
-
-        Boolean keepAlive = Util.getKeepAliveFromArgs(args, 1, callbackContext);
-        if (keepAlive == null) return;
-
-        mPebbleDataLogCallbackContext = callbackContext;
-        mPebbleDataLogReceiver = getPebbleDataLogReceiver(uuid);
-        mKeepReceiversAliveMap.put(mPebbleDataLogReceiver, keepAlive);
-
-        PebbleKit.registerDataLogReceiver(cordova.getActivity(), mPebbleDataLogReceiver);
-        Util.sendLongLivedPluginResult(mPebbleDataLogCallbackContext);
-    }
-
-    private void unregisterDataLogReceiver(CallbackContext callbackContext) {
-        if (mPebbleDataLogReceiver == null) {
-            callbackContext.error("No data log receiver registered");
-            return;
-        }
-
-        Util.tryUnregisterReceiver(cordova.getActivity(), mPebbleDataLogReceiver);
-        mKeepReceiversAliveMap.remove(mPebbleDataLogReceiver);
-        mPebbleDataLogReceiver = null;
-        callbackContext.success();
-    }
-
     private BroadcastReceiver getPebbleConnectedBroadcastreceiver() {
         if (mPebbleConnectedBroadcastReceiver != null)  return mPebbleConnectedBroadcastReceiver;
 
@@ -399,87 +362,6 @@ public class PebbleKitCordovaWrapper extends CordovaPlugin {
                 pluginResult.setKeepCallback(true);
                 mPebbleDataReceivedCallbackContext.sendPluginResult(pluginResult);
                 PebbleKit.sendAckToPebble(cordova.getActivity(), transactionId);
-            }
-        };
-    }
-
-    private PebbleKit.PebbleDataLogReceiver getPebbleDataLogReceiver(UUID appUuid) {
-        if (mPebbleDataLogReceiver != null) return mPebbleDataLogReceiver;
-
-        return new PebbleKit.PebbleDataLogReceiver(appUuid) {
-
-            private static final String VALUE_FIELD = "value";
-
-            private void sendData(JSONObject data) {
-                PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, data);
-                pluginResult.setKeepCallback(true);
-                mPebbleDataLogCallbackContext.sendPluginResult(pluginResult);
-            }
-
-            @Override
-            public void receiveData(Context context, UUID logUuid, Long timestamp, Long tag, Long data) {
-                if (mPebbleDataLogCallbackContext == null) {
-                    Log.e(TAG, "mPebbleDataLogCallbackContext is null");
-                }
-
-                JSONObject jsonData = Util.buildDataLogJson(logUuid, timestamp, tag, false);
-                if (jsonData == null) return;
-
-                try {
-                    jsonData.put(VALUE_FIELD, data);
-                } catch (JSONException e) {
-                    mPebbleDataLogCallbackContext.error(String.format("Couldn't pack data %d", data));
-                }
-
-                sendData(jsonData);
-            }
-
-            @Override
-            public void receiveData(Context context, UUID logUuid, Long timestamp, Long tag, byte[] data) {
-                if (mPebbleDataLogCallbackContext == null) {
-                    Log.e(TAG, "mPebbleDataLogCallbackContext is null");
-                }
-
-                JSONObject jsonData = Util.buildDataLogJson(logUuid, timestamp, tag, false);
-                if (jsonData == null) return;
-
-                try {
-                    jsonData.put(VALUE_FIELD, Base64.encodeToString(data, Base64.NO_WRAP));
-                } catch (JSONException e) {
-                    mPebbleDataLogCallbackContext.error(String.format("Couldn't pack data %s", new String(data)));
-                }
-
-                sendData(jsonData);
-            }
-
-            @Override
-            public void receiveData(Context context, UUID logUuid, Long timestamp, Long tag, int data) {
-                if (mPebbleDataLogCallbackContext == null) {
-                    Log.e(TAG, "mPebbleDataLogCallbackContext is null");
-                }
-
-                JSONObject jsonData = Util.buildDataLogJson(logUuid, timestamp, tag, false);
-                if (jsonData == null) return;
-
-                try {
-                    jsonData.put(VALUE_FIELD, data);
-                } catch (JSONException e) {
-                    mPebbleDataLogCallbackContext.error(String.format("Couldn't pack data %d", data));
-                }
-
-                sendData(jsonData);
-            }
-
-            @Override
-            public void onFinishSession(Context context, UUID logUuid, Long timestamp, Long tag) {
-                if (mPebbleDataLogCallbackContext == null) {
-                    Log.e(TAG, "mPebbleDataLogCallbackContext is null");
-                }
-
-                JSONObject jsonData = Util.buildDataLogJson(logUuid, timestamp, tag, true);
-                if (jsonData == null) return;
-
-                sendData(jsonData);
             }
         };
     }

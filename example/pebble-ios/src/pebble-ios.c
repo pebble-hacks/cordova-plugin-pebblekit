@@ -20,12 +20,43 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   );
 }
 
+static void send_app_msg() {
+  DictionaryIterator *out_iter;
+
+  AppMessageResult result = app_message_outbox_begin(&out_iter);
+  if (result != APP_MSG_OK) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Error preparing the outbox: %d", (int) result);
+    return;
+  }
+
+  int value = 100;
+  uint8_t data[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+
+  dict_write_int(out_iter, AppKeyInteger, &value, sizeof(int), true);
+  dict_write_cstring(out_iter, AppKeyString, "string from pebble");
+  dict_write_int16(out_iter, AppKeyBoolean, true);
+  dict_write_data(out_iter, AppKeyData, data, sizeof(data));
+
+  result = app_message_outbox_send();
+  if (result != APP_MSG_OK) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Error sending the outbox: %d", (int) result);
+  } else {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Sending data");
+  }
+}
+
 static void inbox_received_callback(DictionaryIterator *iter, void *context) {
   APP_LOG(APP_LOG_LEVEL_DEBUG, "New message received");
 
+  bool should_send_app_msg = false;
+
   Tuple *tuple = dict_find(iter, AppKeyInteger);
   if (tuple) {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "Got integer %d", (int) tuple->value->int32);
+    int value = (int) tuple->value->int32;
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Got integer %d", value);
+
+    // Gotta love 42 :)
+    should_send_app_msg = (value == 42);
   }
 
   tuple = dict_find(iter, AppKeyString);
@@ -37,6 +68,14 @@ static void inbox_received_callback(DictionaryIterator *iter, void *context) {
   if (tuple) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Got boolean %s", tuple->value->int16 ? "true" : "false");
   }
+
+  tuple = dict_find(iter, AppKeyData);
+  if (tuple) {
+    uint8_t *data = tuple->value->data;
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Got data (data[0] = %d)", (int) data[0]);
+  }
+
+  if (should_send_app_msg) send_app_msg();
 }
 
 static void inbox_dropped_callback(AppMessageResult reason, void *context) {
@@ -86,7 +125,7 @@ static void init() {
   app_message_register_outbox_sent(outbox_sent_callback);
   app_message_register_outbox_failed(outbox_failed_callback);
 
-  const uint32_t inbox_size = 150;
+  const uint32_t inbox_size = 300;
   const uint32_t outbox_size = inbox_size;
   app_message_open (inbox_size, outbox_size);
 
