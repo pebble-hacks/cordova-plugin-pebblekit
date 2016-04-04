@@ -8,8 +8,26 @@ Pebble application.  Use one framework and the vast set of existing Cordova
 [plugins](https://cordova.apache.org/plugins/) to extend the functionality of
 your watch app/face.
 
+## Install
+cordova plugin add <published-url>
+
+__note__ If supporting iOS, the following steps are required to build the
+ application for the first time.
+
+1. Open up XCode and open the the
+`<project-directory>/platforms/ios/project.<project-name>.xcodeproj`
+2. Click on your project's name on the left pane
+3. Select `Build Phases`
+3. Expand the `Embed Frameworks` tab, and select `PebbleKit.Framework`
+
+If you run into an `Invalid Provisioning Profile` error:
+
+1. Navgiate to `Build Phases` in XCode again, as described in the above steps
+2. Tick the checkmark box next to `Code Sign On Copy` for `PebbleKit.Framework`
+
 ## Available APIs
 
+* [`setupIos`](#setupiosuuid-successcallback-errorcallback)
 * [`isWatchConnected`](#iswatchconnectedsuccesscallback-errorcallback)
 * [`registerPebbleConnectedReceiver`](#registerpebbleconnectedreceiversuccesscallback-errorcallback-keepalive)
 * [`registerPebbleDisconnectedReceiver`](#registerpebbledisconnectedreceiversuccesscallback-errorcallback-keepalive)
@@ -21,10 +39,36 @@ your watch app/face.
 * [`sendAppMessage`](#sendappmessageuuid-data-ackhandler-nackhandler-errorcallback)
 * [`registerReceivedDataHandler`](#registerreceiveddatahandleruuid-successcallback-errorcallback-keepalive)
 * [`unregisterReceivedDataHandler`](#unregisterreceiveddatahandlersuccesscallback-errorcallback)
-* [`registerDataLogReceiver`](#registerdatalogreceiveruuid-successcallback-errorcallback-keepalive)
-* [`unregisterDataLogReceiver`](#unregisterdatalogreceiversuccesscallback-errorcallback)
 
 ## Usage
+
+### setupIos(uuid, successCallback, [errorCallback])
+Users __must__ wait for the success callback of this function to be called
+before calling the following methods on iOS.
+
+* `startAppOnPebble`
+* `closeAppOnPebble`
+* `areAppMessagesSupported`
+* `sendAppMessage`
+* `registerReceivedDataHandler`
+
+__Arguments__
+
+* `uuid` - The UUID of the Pebble application to be interacted with
+* `successCallback` - A callback which is called once the connection is setup
+on the iOS device.  Called immediately if running on an Android device.
+* `errorCallback` - *Optional* A callback which is called if an error has
+occured.
+
+__Example__
+
+```js
+window.pebblekit.setupIos(uuid, function () {
+  console.log('ready');
+}, function (err) {
+  // error
+});
+```
 
 ### isWatchConnected(successCallback, [errorCallback])
 Determine if a Pebble watch is currently connected to the phone.
@@ -220,12 +264,21 @@ __note__ - Depending on the type of the item in the object to be sent, the C
 app will be able to read the value (from the `Tuple.value` union) according to
 the table below:
 
+__note__ - If running on the Android platform, a `transactionId` will be passed
+to the `successCallback` and `errorCallback`, represention the transaction id
+of that particular app message.  This value will be `-1` if on the iOS
+platform.
+
 | JS Type | C Type  |
 |---------|---------|
 | String  | cstring |
 | Number  | int32   |
 | Array   | data    |
 | Boolean | int16   |
+
+__note__ - If running on the iOS platform, the `Boolean` type will actually be
+`int32` type on the C side, however, you may still interpret it as `int16` in
+the C code without any problems.
 
 __Example__
 
@@ -284,7 +337,8 @@ occurred
 phone app has gone to in to the background.  (See [here](#keepAlive) for more
 detail)
 
-__note__ - Acking and Nacking the message is taken care of for you.
+__note__ - Acking and Nacking the message is taken care of for you.  If sending
+data, the base64 representation will be received on the JS side.
 
 __Example__
 
@@ -333,7 +387,7 @@ window.pebblekit.registerReceivedDataHandler(uuid, function(data) {
   Received data {
     "0": 0,
     "1": "message from C",
-    "2": "AAECAwQFBgcJ"
+    "2": "AAECAwQFBgcICQ=="
   }
   */
 
@@ -363,124 +417,15 @@ window.pebblekit.unregisterReceivedDataHandler(function() {
 });
 ```
 
-### registerDataLogReceiver(uuid, successCallback, [errorcallback], [keepAlive])
-
-Register a callback for [data logging](https://developer.pebble.com/guides/communication/datalogging/).
-
-__Arguments__
-
-* `uuid` - The UUID of the pebble app in which to be receiving data from
-* `successCallback` - A callback which is called when new data is available
-* `errorCallback` - *Optional* A callback which is called if an error has
-occurred
-* `keepAlive` - *Optional* set to `true` to keep the receiver alive after the
-phone app has gone to in to the background.  (See [here](#keepAlive) for more
-detail)
-
-__note__ Data will be passed in to the `successCallback` in the following
-format:
-
-```js
-{
-  "logUuid": "<uuid of log>",
-  "timestamp": <value>,
-  "tag": "<tag of transaction>",
-  "sessionFinished": true|false,
-  "value": <value> // either a String, Number, or String representation of
-                   // binary data.
-}
-```
-
-__Example__
-
-Logging from the C side:
-
-```C
-#define LOG_TAG 42
-
-static DataLoggingSessionRef s_session_ref;
-
-static void log_data() {
-  const int value = 16;
-  const uint32_t num_values = 1;
-
-  // Log a single value
-  DataLoggingResult result = data_logging_log(s_session_ref, &value, num_values);
-
-  // Was the value successfully stored? If it failed, print the reason
-  if(result != DATA_LOGGING_SUCCESS) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Error logging data: %d", (int)result);
-  }
-}
-
-static void init() {
-  // ...
-
-  bool continue_session = false;
-  s_session_ref = data_logging_create(
-      LOG_TAG,
-      DATA_LOGGING_INT,
-      sizeof(int),
-      continue_session
-  );
-
-  // ...
-}
-```
-
-For more information on logging data with the Pebble SDK, see the
-[documentation](https://developer.pebble.com/guides/communication/datalogging/)
-
-Reading the data on the JS side:
-
-```js
-var uuid = "ebc92429-483e-4b91-b5f2-ead22e7e002d";
-var keepAlive = false;
-window.pebblekit.registerDataLogReceiver(uuid, function (data) {
-  console.log('Received data', JSON.stringify(data));
-
-  /*
-  Received data {
-    "logUuid": "20dab442-c6d9-4e7f-afe3-a733bd261699",
-    "timestamp": 1457982310,
-    "tag": 42,
-    "sessionFinished": false,
-    "value": 16
-  }
-  */
-}, function (err) {
-  // error
-}, keepAlive);
-```
-
-### unregisterDataLogReceiver([successCallback], [errorCallback])
-
-Stop listening for data logging messages.
-
-__Arguments__
-
-* `successCallback` - *Optional* A callback which is called once the receiver
-has been unregistered
-* `errorCallback` - *Optional* A callback which is called if an error has
-occurred
-
-__Example__
-
-```js
-window.pebblekit.unregisterDataLogReceiver(function() {
-  // receiver has been unregistered
-}, function (err) {
-  // error
-});
-```
-
 ### keepAlive
 Some functions have a `keepAlive` parameter.  By default, this plugin will take
 care of unregistering receivers for you when the app goes into the background
 in order to avoid memory leaks.
 
 If you set this option to `true`, you should make sure to call the
-corresponding `unregisterX()` function when you are done with it.
+corresponding `unregisterX()` function when you are done with it.  The receiver
+will stay active until the application is killed by the OS.  This feature is
+only available for Android.
 
 ## Running the example
 

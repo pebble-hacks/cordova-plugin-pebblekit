@@ -325,19 +325,6 @@
 
 #pragma mark - Util Functions
 
-- (NSMutableDictionary *)buildDataLogginChunk:(PBDataLoggingSessionMetadata *)session
-                            sessionIsFinished:(BOOL)sessionFinished {
-
-    NSNumber *tag = [NSNumber numberWithUint32:[session tag]];
-    NSNumber *timestamp = [NSNumber numberWithUint32:[session timestamp]];
-
-    return [NSMutableDictionary dictionaryWithObjectsAndKeys:
-            @"logUuid", @"null",
-            @"timestamp", timestamp,
-            @"tag", tag,
-            @"sessionFinished", sessionFinished, nil];
-}
-
 - (void)sendLongLivedPluginResult:(NSString *)callbackId {
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT];
     [pluginResult setKeepCallbackAsBool:YES];
