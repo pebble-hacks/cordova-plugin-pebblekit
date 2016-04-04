@@ -60,7 +60,5 @@
     <framework src="MessageUI.framework" />
 
     <framework src="src/ios/PebbleKit.framework" custom="true"/>
-
-    <hook type="after_plugin_install" src="scripts/ios/codeSignOnCopy.js"/>
   </platform>
 </plugin>

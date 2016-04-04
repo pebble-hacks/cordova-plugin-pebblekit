@@ -8,14 +8,24 @@ Pebble application.  Use one framework and the vast set of existing Cordova
 [plugins](https://cordova.apache.org/plugins/) to extend the functionality of
 your watch app/face.
 
+1. [Install](#install)
+2. [Available APIs](#available-apis)
+3. [Usage](#usage)
+    1. [About the `keep alive` Parmeter](#keepalive);
+4. [Running the Example](#running-the-example)
+5. [Development](#development)
+    1. [Project Structure](#project-structure)
+    2. [Native Binding Explanation](#native-binding-explanation)
+    3. [Viewing Logs](#viewing-logs)
+
 ## Install
 cordova plugin add <published-url>
 
 __note__ If supporting iOS, the following steps are required to build the
  application for the first time.
 
-1. Open up XCode and open the the
-`<project-directory>/platforms/ios/project.<project-name>.xcodeproj`
+1. Open up XCode and open your project's `xcodeproj` file
+   (`<project-directory>/platforms/ios/<project-name>.xcodeproj`)
 2. Click on your project's name on the left pane
 3. Select `Build Phases`
 3. Expand the `Embed Frameworks` tab, and select `PebbleKit.Framework`
@@ -124,7 +134,7 @@ __Arguments__
 * `errorCallback` - *Optional* A callback which is called if an error has
 occurred
 * `keepAlive` - *Optional* set to `true` to keep the receiver alive after the
-phone app has gone to in to the background.  (See [here](#keepAlive) for more
+phone app has gone to in to the background.  (See [here](#keepalive) for more
 detail)
 
 __Example__
@@ -334,7 +344,7 @@ received from the application with the given `uuid`
 * `errorCallback` - *Optional* A callback which is called if an error has
 occurred
 * `keepAlive` - *Optional* set to `true` to keep the receiver alive after the
-phone app has gone to in to the background.  (See [here](#keepAlive) for more
+phone app has gone to in to the background.  (See [here](#keepalive) for more
 detail)
 
 __note__ - Acking and Nacking the message is taken care of for you.  If sending
@@ -437,11 +447,11 @@ PATH.
 ### Build the Cordova Application
 1. `cd example/cordova`
 2. `make init` (or `cordova platform add android`, this tells cordova that the
-project should include Android as a build target)
+   project should include Android as a build target)
 3. `make build` (or `cordova plugin add ../../lib`)
-4. `make run` (or `cordova run android --device`).  Make sure you have an Android
-device plugged in.  Congrats.  You are now running the companion app for your
-application
+4. `make run` (or `cordova run android --device`).  Make sure you have an
+   Android device plugged in.  Congrats.  You are now running the companion app
+   for your application
 
 __note__  Running `make` with no dependencies will overwrite the source files of
 the plugin with the corresponding files in the built android directory.  Read
@@ -449,8 +459,8 @@ the plugin with the corresponding files in the built android directory.  Read
 
 ### Build the Pebble Application
 1. `cd example/cordova`
-2. `pebble build && pebble install --phone <PHONE_IP>`
-For more help, see the [documentation](https://developer.pebble.com/guides/tools-and-resources/pebble-tool/)
+2. `pebble build && pebble install --phone <PHONE_IP>` For more help, see the
+   [documentation](https://developer.pebble.com/guides/tools-and-resources/pebble-tool/)
 
 ## Development
 ### Project structure
@@ -464,7 +474,7 @@ added the plugin.
 when users run `cordova build` or `cordova run` for a project that uses this
 plugin.
 
-### Native Binding
+### Native Binding Explanation
 The way the binding works between the javascript and the native code is like
 this:
 
@@ -472,21 +482,16 @@ this:
 In the `pebblekit.js` file, a function `exec` is made available
 `exec(successCallback, errorCallback, className, action, [args])`
 
-Calling this function will call a function in the native code, aptly named
-`execute()`.  The arguments to the JS side of the `exec()` call are as follows
-
 - `successCallback` is a function which is executed if the corresponding native
 component deems the method call a success
 - `errorCallback` is a function which is executed if the corresponding native
 component deems the method call a failure
 - `className` is the name of the native class that you want to call a method from
-- `action` a string that is passed `exec` method on the native side.  Used in the
-native side to determine what functionality the user is expecting.  Usually
-corresponds to the
-- `[args]` Javascript array of arguments to pass to the native side.
+- `action` The name of the method to call on the native side
+- `[args]` Javascript array of arguments to pass to the native side
 
 #### Android
-Extending the `CordovaPlugin` class requires you implement the function
+Extend the `CordovaPlugin` class.  This requires you to implement the function
 
 ```java
 @Override
@@ -494,10 +499,13 @@ public boolean execute(String action, JSONArray args, CallbackContext callbackCo
 ```
 
 Returning `true` indicates that there IS a corresponding method for the passed
-in `action`.  Returning false will indiciate to the user that there is no
-functionality corresponding to the passed in `action`.
+in `action` (i.e., there is no magic happening here, you manually map the
+passed in `action` string to java methods yourself).  Returning false will
+indiciate to the user that there is no functionality corresponding to the
+passed in `action`.
 
-The arguments correspond to what is passed into `exec()` on the js side.
+The `args` argument is a JSONArray, holding the arguments passed into the
+`exec` function on the js side
 
 The `CallbackContext` object is used for communicating back to the JS side of
 the plugin.
@@ -509,8 +517,10 @@ Calling `callbackContext.error()` will call the `errorCallback` function on the
 JS side
 
 Sometimes, you don't want to return something right away.  e.g. registering for
-`PebbleConnected` and `PebbleDisconnected` events.  In this case, you would
-use the following syntax to prevent the callback context from being cleaned up.
+`PebbleConnected` and `PebbleDisconnected` events (you would wait for those
+events to happen before calling one of the callback methods).  In this case,
+you would use the following syntax to prevent the callback context from being
+cleaned up.
 
 ```java
 PluginResult immediatePluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
@@ -519,37 +529,98 @@ callbackContext.sendPluginResult(immediatePluginResult);
 ```
 
 Likewise, if you want to trigger one of the `successCallback` or
-`errorCallback` methods multiple times, use `pluginResult.setKeepCallback(true)`
-to prevent the object from being cleaned up.
+`errorCallback` methods multiple times, use
+`pluginResult.setKeepCallback(true)` to prevent the object from being cleaned
+up.
+
+#### iOS
+The class should extends the `CDVPlugin` class.
+
+Cordova provides some magic here.  Simply create method names that match the
+`action` strings passed into the `exec` function on the JS side.  When they are
+called, the corresponding iOS function will be called.  One example could look
+like this
+
+```objectivec
+- (void)exampleMethod:(CDVInvokedUrlCommand *)command {
+  // called when `exampleMethod` is passed as the action
+  // to the `exec` function on the JS side.
+}
+```
+
+Arguments are obtained by calling `[command.arguments objectAtIndex:<index>]`
+
+##### Callbacks
+```objectivec
+CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+                                                          messase:@"Message from native side"];
+[self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+```
+
+As explained in the [callbacks section above](#callbacks), sometimes a response
+isn't needed immediately.
+
+```objectivec
+CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_NO_RESULT]
+[pluginResult setKeepCallbackAsBool:YES]
+[self.commandDelegate sendPluginResult callbackId:command.callbackId];
+```
+
+Unlike in the Android implementation, there is no need to save the `command`
+variable, only the [command.callbackId] so that it may be used in the
+`sendPluginResult` method.
 
 ### Viewing logs
 
 #### JS
-You can use Google Chrome in order to view the logs printed from the js side
+You can use a browser to view the logs in the webview of the phone app.
+
+If you're running the app on an Android device:
 
 1. Open Google Chrome
 2. Visit [`chrome://inspect`](chrome://inspect)
-3. Make sure your device is plugged in
+3. Make sure your device is plugged in, and that `USB Debugging` is enabled
 4. Hit the `inspect` button.  This will bring up a new window which provides
 you with all the native google chrome developer tools, just hooked into the
 webview running on the phone.
 
+If you're running the app on an iOS device:
+
+1. Open safari
+2. Make sure the `Develop` menu item is available in the menu bar
+    1. `Preferences`
+    2. `Advanced`
+    3. Check the `show Develop menu in the menu bar` checkbox
+3. Open the web inspector for your application
+    1. `Develop`
+    2. `<Name of iOS device>`
+    3. `<Name of html page running in webview>` (likely `index.html`)
+
 #### Android
-When you build/run the project with Cordova, the source files of the plugin
-are copied to the directory
-`example/cordova/platforms/android/com/pebble/cordovapebblekit/`.
+1. If you haven't already, add Android as a platform to the Cordova project
+   (`cordova platform add android`)
+2. Open Android Studio to the generated project's directory
+   (`<directory>/platforms/android`)
 
-You can open Android Studio to the `example/cordova/platforms/android` directory
-and you will be able to explore the source code, set breakpoints, and view
-the logcat just like any other Android project.
+#### iOS
+1. If you haven't already, add iOS as a platform to the Cordova project
+   (`cordova platform add ios`)
+2. Open XCode to the Cordova projet's directory
+   (`<directory>/platforms/ios`)
 
-With this, you have the full power of the IDE, including code completion,
-refactoring, formatting, etc.  The only caveat is that you are editing the
-built files instead of the source files of the plugin.  Because of this, the
-makefile has been setup to copy the Plugin files from the
-`example/cordova/platforms/android` directory to the `lib/src/android`
-This way, changes made to the plugin source files through the IDE will not be
-lost.
+### Makefile
+Cordova copies the source files of the plugin over to the generated
+application.  However, this means you are usually editing the source files out
+of context of a full project, meaning that using an IDE to edit the source
+files will not be very helpful.  If you would like to use an IDE for refactoring,
+code code completion, etc, it would be beneficial to edit the files *after*
+they've been copied to the generated project.
 
-Running `make` with no arugments will copy the files over, read the plugin,
-and the run the project on a plugged in android device.
+The makefile in `example/cordova` will copy the plugin files from the generated
+project to the source directory of the plugin
+(`lib/src/<platform-specific-directory>`).  This way, the following workflow
+can be achieved
+
+1. Edit native plugin files in generated project using IDE
+2. run `make` (copies the plugin files from the generated project back to the
+   source directory, builds the project, and runs the project)

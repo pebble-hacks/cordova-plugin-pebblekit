@@ -3,6 +3,4 @@
 
 @interface PebbleKitCordovaWrapper : CDVPlugin
 
--(void)isWatchConnected:(CDVInvokedUrlCommand *)command;
-
 @end

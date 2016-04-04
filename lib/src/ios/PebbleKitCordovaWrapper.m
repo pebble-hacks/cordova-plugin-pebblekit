@@ -13,7 +13,6 @@
 @property (copy, nonatomic) NSString *setupCallbackId;
 @property (copy, nonatomic) NSString *pebbleConnectedCallbackId;
 @property (copy, nonatomic) NSString *pebbleDisconnectedCallbackId;
-@property (copy, nonatomic) NSString *dataLoggingCallbackId;
 
 @property (assign, nonatomic) BOOL dataReceivedHandlerRegistered;
 
