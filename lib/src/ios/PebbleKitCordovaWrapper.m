@@ -22,7 +22,7 @@
 
 #pragma mark - Exposed Cordova Functions
 
-- (void)setupIos:(CDVInvokedUrlCommand *)command {
+- (void)setup:(CDVInvokedUrlCommand *)command {
     if (self.watch) {
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                                                           messageAsString:@"Already setup... This method should only be called once"];
