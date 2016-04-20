@@ -3,7 +3,6 @@
 #import <PebbleKit/PebbleKit.h>
 
 #define ERROR_MSG_NO_WATCH @"No watch connected"
-#define DATA_LOG_KEY_VALUE @"value"
 
 @interface PebbleKitCordovaWrapper () <PBPebbleCentralDelegate>
 
