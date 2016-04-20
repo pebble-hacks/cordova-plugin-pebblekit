@@ -27,8 +27,8 @@ __note__ If supporting iOS, the following steps are required to build the
 1. Open up XCode and open your project's `xcodeproj` file
    (`<project-directory>/platforms/ios/<project-name>.xcodeproj`)
 2. Click on your project's name on the left pane
-3. Select `Build Phases`
-3. Expand the `Embed Frameworks` tab, and select `PebbleKit.Framework`
+3. In the `General` tab, expand the `Embedded Binaries` section
+4. Hit the plus button, and select `PebbleKit.Framework`
 
 If you run into an `Invalid Provisioning Profile` error:
 
@@ -37,7 +37,7 @@ If you run into an `Invalid Provisioning Profile` error:
 
 ## Available APIs
 
-* [`setupIos`](#setupiosuuid-successcallback-errorcallback)
+* [`setup`](#setupuuid-successcallback-errorcallback)
 * [`isWatchConnected`](#iswatchconnectedsuccesscallback-errorcallback)
 * [`registerPebbleConnectedReceiver`](#registerpebbleconnectedreceiversuccesscallback-errorcallback-keepalive)
 * [`registerPebbleDisconnectedReceiver`](#registerpebbledisconnectedreceiversuccesscallback-errorcallback-keepalive)
@@ -52,7 +52,7 @@ If you run into an `Invalid Provisioning Profile` error:
 
 ## Usage
 
-### setupIos(uuid, successCallback, [errorCallback])
+### setup(uuid, successCallback, [errorCallback])
 Users __must__ wait for the success callback of this function to be called
 before calling the following methods on iOS.
 
@@ -73,7 +73,7 @@ occured.
 __Example__
 
 ```js
-window.pebblekit.setupIos(uuid, function () {
+window.pebblekit.setup(uuid, function () {
   console.log('ready');
 }, function (err) {
   // error
@@ -441,21 +441,19 @@ only available for Android.
 
 ### Dependencies
 1. Ensure [`adb`](http://developer.android.com/tools/help/adb.html) is in your
-PATH.
+PATH. (Android only)
 2. Install Cordova, `npm install -g cordova`
 
 ### Build the Cordova Application
 1. `cd example/cordova`
-2. `make init` (or `cordova platform add android`, this tells cordova that the
-   project should include Android as a build target)
-3. `make build` (or `cordova plugin add ../../lib`)
-4. `make run` (or `cordova run android --device`).  Make sure you have an
-   Android device plugged in.  Congrats.  You are now running the companion app
-   for your application
+2. `cordova platform add android` and/or `cordova platform add ios`
+3. `cordova plugin add cordova-plugin-pebblekit`
+4. `cordova plugin add cordova-plugin-calendar`
+5. `cordova run android --device` or `cordova run ios --device`
 
-__note__  Running `make` with no dependencies will overwrite the source files of
-the plugin with the corresponding files in the built android directory.  Read
-[here](#android-1) to understand why.
+__note__  Running `make` with no arguments will overwrite the source files of
+the plugin with the corresponding files in the respective platform build
+directory.  Read [here](#android-1) to understand why.
 
 ### Build the Pebble Application
 1. `cd example/cordova`
@@ -586,12 +584,18 @@ webview running on the phone.
 
 If you're running the app on an iOS device:
 
+Enable web insecptor on your iOS device
+1. Open the settings app
+2. Select `Safari`
+3. Select `Advaned`
+4. Ensure `Web Inspector` is on
+
 1. Open safari
-2. Make sure the `Develop` menu item is available in the menu bar
+3. Make sure the `Develop` menu item is available in the menu bar
     1. `Preferences`
     2. `Advanced`
     3. Check the `show Develop menu in the menu bar` checkbox
-3. Open the web inspector for your application
+4. Open the web inspector for your application
     1. `Develop`
     2. `<Name of iOS device>`
     3. `<Name of html page running in webview>` (likely `index.html`)

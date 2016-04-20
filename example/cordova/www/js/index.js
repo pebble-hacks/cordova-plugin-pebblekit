@@ -18,7 +18,7 @@
  */
 
 var uuid = "ebc92429-483e-4b91-b5f2-ead22e7e002d";
-
+var logs = [];
 var app = {
   // Application Constructor
   initialize: function() {
@@ -39,7 +39,11 @@ var app = {
   // function, we must explicitly call 'app.receivedEvent(...);'
   onDeviceReady: function() {
     app.receivedEvent('deviceready');
-    app.pebbleKit();
+
+    window.pebblekit.setup(uuid, function() {
+      logs.push('setup complete');
+      app.pebbleKit();
+    });
   },
 
   // Update DOM on a Received Event
@@ -56,6 +60,8 @@ var app = {
 
   pebbleKit: function() {
     window.pebblekit.registerReceivedDataHandler(uuid, function(message) {
+      logs.push('got message');
+
       if (message['0'] !== 0) {
         console.log('unrecognized app message', message);
         return;
@@ -66,11 +72,12 @@ var app = {
     }, function (errorMessage) {
       console.log('got error: ', errorMessage);
     }, true);
-    console.log('receivedDataHandler registered');
+    logs.push('receivedDataHandler registered');
   },
 
   testCalendarPermission: function() {
     window.plugins.calendar.hasReadWritePermission(function(result) {
+      logs.push('read write permission ' + result);
       console.log('read write permission ' + result);
 
       if (!result) {
@@ -87,6 +94,7 @@ var app = {
     var startDate = new Date();
     var endDate = new Date();
     endDate.setHours(24, 0, 0, 0); // Nearest midnight in the future
+    logs.push('findNextCalendarEvent');
 
     window.plugins.calendar.findEvent(
         undefined, // title

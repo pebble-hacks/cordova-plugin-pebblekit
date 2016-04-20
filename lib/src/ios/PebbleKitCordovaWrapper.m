@@ -5,7 +5,7 @@
 #define ERROR_MSG_NO_WATCH @"No watch connected"
 #define DATA_LOG_KEY_VALUE @"value"
 
-@interface PebbleKitCordovaWrapper () <PBPebbleCentralDelegate, PBDataLoggingServiceDelegate>
+@interface PebbleKitCordovaWrapper () <PBPebbleCentralDelegate>
 
 @property (weak, nonatomic) PBWatch *watch;
 @property (weak, nonatomic) PBPebbleCentral *central;
@@ -33,13 +33,13 @@
     self.setupCallbackId = command.callbackId;
 
     self.central = [PBPebbleCentral defaultCentral];
-    self.central.delegate = self;
-
     NSString *uuidString = [command.arguments objectAtIndex:0];
     self.central.appUUID = [[NSUUID alloc] initWithUUIDString:uuidString];
-
     [self.central run];
+
     [self sendLongLivedPluginResult:command.callbackId];
+
+    self.central.delegate = self;
 }
 
 - (void)isWatchConnected:(CDVInvokedUrlCommand *)command {
@@ -79,7 +79,7 @@
     [self sendLongLivedPluginResult:command.callbackId];
 }
 
--( void)unregisterPebbleConnectedReceiver:(CDVInvokedUrlCommand *)command {
+- (void)unregisterPebbleConnectedReceiver:(CDVInvokedUrlCommand *)command {
     CDVPluginResult *pluginResult;
 
     if (self.pebbleConnectedCallbackId) {
@@ -264,6 +264,7 @@
     NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:uuidString];
 
     [self.watch appMessagesAddReceiveUpdateHandler:^BOOL(PBWatch * _Nonnull watch, NSDictionary<NSNumber *,id> * _Nonnull update) {
+        NSLog(@"received app message %@", update);
         NSMutableDictionary *appMessage = [[NSMutableDictionary alloc] init];
 
         // Repackage NSDictionary with correct types
@@ -281,7 +282,6 @@
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:appMessage];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 
-        NSLog(@"Sent data to pebble %@", appMessage);
         return YES;
     } withUUID:uuid];
 
