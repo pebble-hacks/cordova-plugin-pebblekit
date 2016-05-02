@@ -11,25 +11,25 @@ your watch app/face.
 1. [Install](#install)
 2. [Available APIs](#available-apis)
 3. [Usage](#usage)
-    1. [About the `keep alive` Parmeter](#keepalive);
+    1. [About the `keep alive` Parameter](#keepalive);
 4. [Running the Example](#running-the-example)
 
 ## Install
-cordova plugin add <published-url>
+`$ cordova plugin add cordova-plugin-pebblekit`
 
 __note__ If supporting iOS, the following steps are required to build the
  application for the first time.
 
 1. Open up XCode and open your project's `xcodeproj` file
-   (`<project-directory>/platforms/ios/<project-name>.xcodeproj`)
-2. Click on your project's name on the left pane
-3. In the `General` tab, expand the `Embedded Binaries` section
-4. Hit the plus button, and select `PebbleKit.Framework`
+   (`<project-directory>/platforms/ios/<project-name>.xcodeproj`).
+2. Click on your project's name on the left pane.
+3. In the `General` tab, expand the `Embedded Binaries` section.
+4. Hit the plus button, and select `PebbleKit.Framework`.
 
 If you run into an `Invalid Provisioning Profile` error:
 
-1. Navgiate to `Build Phases` in XCode again, as described in the above steps
-2. Tick the checkmark box next to `Code Sign On Copy` for `PebbleKit.Framework`
+1. Navigate to `Build Phases` in XCode again, as described in the above steps.
+2. Tick the checkbox next to `Code Sign On Copy` for `PebbleKit.Framework`.
 
 ## Available APIs
 
@@ -50,7 +50,7 @@ If you run into an `Invalid Provisioning Profile` error:
 
 ### setup(uuid, successCallback, [errorCallback])
 Users __must__ wait for the success callback of this function to be called
-before calling the following methods on iOS.
+before calling the following methods.
 
 * `startAppOnPebble`
 * `closeAppOnPebble`
@@ -60,11 +60,11 @@ before calling the following methods on iOS.
 
 __Arguments__
 
-* `uuid` - The UUID of the Pebble application to be interacted with
+* `uuid` - The UUID of the Pebble application to be interacted with.
 * `successCallback` - A callback which is called once the connection is setup
 on the iOS device.  Called immediately if running on an Android device.
 * `errorCallback` - *Optional* A callback which is called if an error has
-occured.
+occurred.
 
 __Example__
 
@@ -82,8 +82,8 @@ Determine if a Pebble watch is currently connected to the phone.
 __Arguments__
 
 * `successCallback` - A callback which is called when the status of the
-connection has been deteremined
-* `errorCalback` - *Optional* A callback which is called if an error has
+connection has been determined.
+* `errorCallback` - *Optional* A callback which is called if an error has
 occurred.
 
 __Example__
@@ -102,12 +102,12 @@ Register to be notified when a Pebble has been connected to the phone.
 
 __Arguments__
 
-* `successCallback` - A callback which is called when the watch is connected
+* `successCallback` - A callback which is called when the watch is connected.
 * `errorCallback` - *Optional* A callback which is called if an error has
-occurred
+occurred.
 * `keepAlive` - *Optional* set to `true` to keep the receiver alive after the
 phone app has gone to in to the background.  (See [here](#keepalive) for more
-detail)
+detail).
 
 __Example__
 
@@ -126,12 +126,12 @@ Register to be notified when a Pebble has been disconnected from the phone.
 
 __Arguments__
 
-* `successCallback` - A callback which is called when the watch is disconnected
+* `successCallback` - A callback which is called when the watch is disconnected.
 * `errorCallback` - *Optional* A callback which is called if an error has
-occurred
+occurred.
 * `keepAlive` - *Optional* set to `true` to keep the receiver alive after the
 phone app has gone to in to the background.  (See [here](#keepalive) for more
-detail)
+detail).
 
 __Example__
 
@@ -151,9 +151,9 @@ Stop being notified about when a pebble is connected to the phone.
 __Arguments__
 
 * `successCallback` - *Optional* A callback which is called once the receiver
-has been unregistered
+has been unregistered.
 * `errorCallback` - *Optional* A callback which is called if an error has
-occurred
+occurred.
 
 __Example__
 
@@ -172,9 +172,9 @@ Stop being notified about when a pebble is disconnected to the phone.
 __Arguments__
 
 * `successCallback` - *Optional* A callback which is called once the receiver
-has been unregistered
+has been unregistered.
 * `errorCallback` - *Optional* A callback which is called if an error has
-occurred
+occurred.
 
 __Example__
 
@@ -192,11 +192,11 @@ Start an application on the pebble with the specified `uuid`.
 
 __Arguments__
 
-* `uuid` - The UUID of the application to start on the watch
+* `uuid` - The UUID of the application to start on the watch.
 * `successCallback` - *Optional* A callback which is called once the app has
-been started
+been started.
 * `errorCallback` - *Optional* A callback which is called if an error has
-occurred
+occurred.
 
 __Example__
 
@@ -214,11 +214,11 @@ Close an app on the watch with the specified `uuid`.
 
 __Arguments__
 
-* `uuid` - The UUID of the application to close on the watch
-* `successCallback` - *Optional* A callback which is callled once the app
-has been started
+* `uuid` - The UUID of the application to close on the watch.
+* `successCallback` - *Optional* A callback which is called once the app
+has been started.
 * `errorCallback` - *Optional* A callback which is called if an error has
-occurred
+occurred.
 
 __Example__
 
@@ -238,9 +238,9 @@ Determine whether or not the currently connected watch supports
 __Arguments__
 
 * `successCallback` - A callback which is called, containing the result of
-whether appmesages
+whether AppMessage is supported.
 * `errorCallback` - *Optional* A callback which is called if an error has
-occurred
+occurred.
 
 __Example__
 
@@ -259,19 +259,19 @@ Send an AppMessage to the watch.
 __Arguments__
 
 * `uuid` - The UUID of the pebble application the `AppMessage` should be sent
-to
+to.
 * `data` - An `Object` containing data to send to the watch.
-* `ackHandler` - A callback that is called if the `AppMessage` is `ack`ed
-* `nackHandler` - A callback that is called if the `AppMessage` is `nack`ed
+* `ackHandler` - A callback that is called if the `AppMessage` is `ack`ed.
+* `nackHandler` - A callback that is called if the `AppMessage` is `nack`ed.
 * `errorCallback` - *Optional* A callback that is called if there was a problem
-sending the `AppMessage`
+sending the `AppMessage`.
 
 __note__ - Depending on the type of the item in the object to be sent, the C
 app will be able to read the value (from the `Tuple.value` union) according to
 the table below:
 
 __note__ - If running on the Android platform, a `transactionId` will be passed
-to the `successCallback` and `errorCallback`, represention the transaction id
+to the `successCallback` and `errorCallback`, representing the transaction id
 of that particular app message.  This value will be `-1` if on the iOS
 platform.
 
@@ -334,14 +334,14 @@ sends an `AppMessage`.
 
 __Arguments__
 
-* `uuid` - The UUID of the pebble app in which to be receiving messages from
+* `uuid` - The UUID of the pebble app in which to be receiving messages from.
 * `successCallback` - A callback which is called when a new app message is
-received from the application with the given `uuid`
+received from the application with the given `uuid`.
 * `errorCallback` - *Optional* A callback which is called if an error has
-occurred
+occurred.
 * `keepAlive` - *Optional* set to `true` to keep the receiver alive after the
 phone app has gone to in to the background.  (See [here](#keepalive) for more
-detail)
+detail).
 
 __note__ - Acking and Nacking the message is taken care of for you.  If sending
 data, the base64 representation will be received on the JS side.
@@ -409,9 +409,9 @@ Stop listening for `AppMessage`s sent from the watch.
 __Arguments__
 
 * `successCallback` - A callback that is called once the data handler has been
-unregistered
+unregistered.
 * `errorCallback` - *Optional* A callback that is called if an error has
-occurred
+occurred.
 
 __Example__
 
@@ -437,8 +437,8 @@ only available for Android.
 
 ### Dependencies
 1. Ensure [`adb`](http://developer.android.com/tools/help/adb.html) is in your
-PATH. (Android only)
-2. Install Cordova, `npm install -g cordova`
+PATH. (Android only).
+2. Install Cordova, `npm install -g cordova`.
 
 ### Build the Cordova Application
 1. `cd example/cordova`
@@ -452,7 +452,7 @@ the plugin with the corresponding files in the respective platform build
 directory.  Read [here](#android-1) to understand why.
 
 ### Build the Pebble Application
-1. `cd example/cordova`
+1. `cd example/cordova`.
 2. `pebble build && pebble install --phone <PHONE_IP>` For more help, see the
-   [documentation](https://developer.pebble.com/guides/tools-and-resources/pebble-tool/)
+   [documentation](https://developer.pebble.com/guides/tools-and-resources/pebble-tool/).
 
