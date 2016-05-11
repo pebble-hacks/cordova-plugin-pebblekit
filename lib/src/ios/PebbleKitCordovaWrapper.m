@@ -295,6 +295,12 @@
         self.watch = watch;
     }
 
+    [self.watch getVersionInfo:^(PBWatch * _Nonnull watch, PBVersionInfo * _Nonnull versionInfo) {
+        NSLog(@"appMessagesSupported: %@", versionInfo.appMessagesSupported ? @"YES" : @"NO");
+    } onTimeout:^(PBWatch * _Nonnull watch) {
+        NSLog(@"Failed to get version info.");
+    }];
+
     if (self.setupCallbackId) {
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.setupCallbackId];
