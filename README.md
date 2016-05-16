@@ -15,8 +15,18 @@ your watch app/face.
 4. [Running the Example](#running-the-example)
 
 ## Install
+
+### Dependencies
+1. Ensure [`adb`](http://developer.android.com/tools/help/adb.html) is in your
+PATH. (Android only).
+2. Install Cordova, `npm install -g cordova`.
+
+### Plugin Installation
+To add PebbleKit support to an existing Cordova project, run:
+
 `$ cordova plugin add cordova-plugin-pebblekit`
 
+### iOS Additional Steps
 __note__ If supporting iOS, the following steps are required to build the
  application for the first time.
 
@@ -324,7 +334,7 @@ static void inbox_received_callback(DictionaryIterator *iter, void *context) {
 }
 ```
 
-To read more about reading `AppMessage`s on the C side, see the
+To read more about reading `AppMessage` on the C side, see the
 [documentation](https://developer.pebble.com/guides/communication/sending-and-receiving-data/)
 
 ### registerReceivedDataHandler(uuid, successCallback, [errorCallback], [keepAlive])
@@ -434,11 +444,7 @@ will stay active until the application is killed by the OS.  This feature is
 only available for Android.
 
 ## Running the example
-
-### Dependencies
-1. Ensure [`adb`](http://developer.android.com/tools/help/adb.html) is in your
-PATH. (Android only).
-2. Install Cordova, `npm install -g cordova`.
+You must first install the [dependencies](#dependencies).
 
 ### Build the Cordova Application
 1. `cd example/cordova`
@@ -449,7 +455,7 @@ PATH. (Android only).
 
 __note__  Running `make` with no arguments will overwrite the source files of
 the plugin with the corresponding files in the respective platform build
-directory.  Read [here](#android-1) to understand why.
+directory. 
 
 ### Build the Pebble Application
 1. `cd example/cordova`.
