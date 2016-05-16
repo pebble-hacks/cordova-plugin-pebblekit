@@ -41,7 +41,7 @@ var app = {
     app.receivedEvent('deviceready');
 
     window.pebblekit.setup(uuid, function() {
-      logs.push('setup complete');
+      console.log('setup complete');
       app.pebbleKit();
     });
   },
@@ -59,9 +59,13 @@ var app = {
   },
 
   pebbleKit: function() {
-    window.pebblekit.registerReceivedDataHandler(uuid, function(message) {
-      logs.push('got message');
+    window.pebblekit.startAppOnPebble('ebc92429-483e-4b91-b5f2-ead22e7e002d', function() {
+      console.log('app started on pebble');
+    }, function (err) {
+      // error
+    });
 
+    window.pebblekit.registerReceivedDataHandler(uuid, function(message) {
       if (message['0'] !== 0) {
         console.log('unrecognized app message', message);
         return;
@@ -72,17 +76,14 @@ var app = {
     }, function (errorMessage) {
       console.log('got error: ', errorMessage);
     }, true);
-    logs.push('receivedDataHandler registered');
   },
 
   testCalendarPermission: function() {
     window.plugins.calendar.hasReadWritePermission(function(result) {
-      logs.push('read write permission ' + result);
       console.log('read write permission ' + result);
 
       if (!result) {
         window.plugins.calendar.requestReadWritePermission();
-
       } else {
         app.findNextCalendarEvent();
       }
@@ -94,7 +95,7 @@ var app = {
     var startDate = new Date();
     var endDate = new Date();
     endDate.setHours(24, 0, 0, 0); // Nearest midnight in the future
-    logs.push('findNextCalendarEvent');
+    console.log('findNextCalendarEvent');
 
     window.plugins.calendar.findEvent(
         undefined, // title

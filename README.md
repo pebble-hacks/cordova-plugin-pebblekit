@@ -298,7 +298,7 @@ the C code without any problems.
 
 __Example__
 
-Sending from the JS side:
+Sending from the Cordova JS side:
 
 ```js
 var uuid = "ebc92429-483e-4b91-b5f2-ead22e7e002d";
@@ -354,7 +354,7 @@ phone app has gone to in to the background.  (See [here](#keepalive) for more
 detail).
 
 __note__ - Acking and Nacking the message is taken care of for you.  If sending
-data, the base64 representation will be received on the JS side.
+data, the base64 representation will be received on the Cordova JS side.
 
 __Example__
 
@@ -391,7 +391,7 @@ static void send_app_msg() {
 }
 ```
 
-Receiving on the JS side:
+Receiving on the Cordova JS side:
 
 ```js
 var uuid = "ebc92429-483e-4b91-b5f2-ead22e7e002d";
@@ -455,10 +455,9 @@ You must first install the [dependencies](#dependencies).
 
 __note__  Running `make` with no arguments will overwrite the source files of
 the plugin with the corresponding files in the respective platform build
-directory. 
+directory.
 
 ### Build the Pebble Application
 1. `cd example/cordova`.
 2. `pebble build && pebble install --phone <PHONE_IP>` For more help, see the
    [documentation](https://developer.pebble.com/guides/tools-and-resources/pebble-tool/).
-
