@@ -13,6 +13,7 @@ your watch app/face.
 3. [Usage](#usage)
     1. [About the `keep alive` Parameter](#keepalive);
 4. [Running the Example](#running-the-example)
+5. [Debugging](#debugging)
 
 ## Install
 
@@ -461,3 +462,19 @@ directory.
 1. `cd example/cordova`.
 2. `pebble build && pebble install --phone <PHONE_IP>` For more help, see the
    [documentation](https://developer.pebble.com/guides/tools-and-resources/pebble-tool/).
+
+## Debugging
+You can use console.log() statements and breakpoints for debugging your Cordova JS on iOS and
+Android.
+
+### Android
+Your phone needs to be connected via USB with `USB Debugging` enabled. Launch your application:
+`cordova run android --device`. Open Google Chrome on your computer and go to
+[Inspect Devices](chrome://inspect/#devices) and select your Cordova application. You should be
+able to inspect your code and set breakpoints etc.
+
+### iOS
+Your iPhone needs to be unlocked and connected via USB. Now go to `Settings > Safari > Advanced`
+and enable `Web Inspector`. Launch your application: `cordova run ios --device`. Open Safari on
+your computer and select your iPhone from the `Develop` menu. You should be able to inspect your
+code and set breakpoints etc.
