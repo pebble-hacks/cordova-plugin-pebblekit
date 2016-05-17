@@ -244,12 +244,12 @@ window.pebblekit.closeAppOnPebble('ebc92429-483e-4b91-b5f2-ead22e7e002d', functi
 ### areAppMessagesSupported(successCallback, [errorCallback])
 
 Determine whether or not the currently connected watch supports
-[`AppMessages`](https://developer.pebble.com/docs/c/Foundation/AppMessage/).
+[`AppMessage`](https://developer.pebble.com/docs/c/Foundation/AppMessage/).
 
 __Arguments__
 
 * `successCallback` - A callback which is called, containing the result of
-whether AppMessage is supported.
+whether `AppMessage` is supported.
 * `errorCallback` - *Optional* A callback which is called if an error has
 occurred.
 
@@ -265,7 +265,7 @@ window.pebblekit.areAppMessagesSupported(function(supported) {
 
 ### sendAppMessage(uuid, data, ackHandler, nackHandler, [errorCallback])
 
-Send an AppMessage to the watch.
+Send an `AppMessage` to the watch.
 
 __Arguments__
 
@@ -415,7 +415,7 @@ window.pebblekit.registerReceivedDataHandler(uuid, function(data) {
 
 ### unregisterReceivedDataHandler([successCallback], [errorCallback])
 
-Stop listening for `AppMessage`s sent from the watch.
+Stop listening for `AppMessage` sent from the watch.
 
 __Arguments__
 
