@@ -25,7 +25,6 @@ public class Util {
     private static final int ARGS_INDEX_APP_UUID = 0;
 
     public static JSONObject pebbleDictionaryToAppMessageJson(PebbleDictionary pebbleDictionary) {
-
         JSONObject appMessage = new JSONObject();
         JSONArray pebbleKitAppMessage;
 
@@ -44,11 +43,7 @@ public class Util {
             try {
                 currentItem = pebbleKitAppMessage.getJSONObject(i);
             } catch (JSONException e) {
-                Log.e(TAG, String.format(
-                        "Couldn't parse item %d of %s",
-                        i,
-                        pebbleKitAppMessage.toString()
-                ), e);
+                Log.e(TAG, String.format( "Couldn't parse item %d of %s", i, pebbleKitAppMessage.toString() ), e);
                 return null;
             }
 
@@ -84,7 +79,6 @@ public class Util {
 
             } else if (type.equals("bytes")) {
                 try {
-
                     // Already base64 encoded into a string via PebbleDictionary
                     appMessage.put(key, currentItem.getString("value"));
                 } catch (JSONException e) {
@@ -99,27 +93,6 @@ public class Util {
         }
 
         return appMessage;
-    }
-
-    public static JSONObject buildDataLogJson(UUID logUuid, Long timestamp, Long tag, boolean sessionFinished) {
-        JSONObject jsonData = new JSONObject();
-
-        try {
-            jsonData.put("logUuid", logUuid.toString());
-            jsonData.put("timestamp", timestamp);
-            jsonData.put("tag", tag);
-            jsonData.put("sessionFinished", sessionFinished);
-        } catch (JSONException e) {
-            Log.e(TAG, String.format(
-                    "Couldn't pack data: uuid=%s, timestamp=%d, tag=%d",
-                    logUuid.toString(),
-                    timestamp,
-                    tag
-            ));
-            return null;
-        }
-
-        return jsonData;
     }
 
     public static PebbleDictionary jsonToPebbleDictionary(JSONObject data, CallbackContext callbackContext) {
@@ -149,12 +122,15 @@ public class Util {
 
             if (value instanceof Integer) {
                 pebbleDictionary.addInt32(key, (Integer) value);
-
+            }  else if (value instanceof String) {
+                pebbleDictionary.addString(key, (String) value);
+            } else if (value instanceof Boolean) {
+                pebbleDictionary.addInt16(key, (short) (((Boolean) value) ? 1 : 0));
             } else if (value instanceof JSONArray) {
                 pebbleDictionary.addBytes(key, jsonArrayToBytes((JSONArray) value));
-
-            } else if (value instanceof String) {
-                pebbleDictionary.addString(key, (String) value);
+            } else {
+                callbackContext.error(String.format("Unrecognized value type for key %s", key));
+                return null;
             }
         }
 
@@ -194,7 +170,6 @@ public class Util {
 
         // Convert to primitive byte array
         byte[] bytes = new byte[bytesList.size()];
-
         for (int i = 0; i < bytesList.size(); i++) {
             bytes[i] = bytesList.get(i);
         }

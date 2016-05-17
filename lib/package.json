@@ -1,0 +1,33 @@
+{
+  "name": "cordova-plugin-pebblekit",
+  "version": "1.0.0",
+  "description": "Create native applications with PebbleKit support using Cordova",
+  "cordova": {
+    "id": "cordova-plugin-pebblekit",
+    "platforms": [
+      "android",
+      "ios"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pebble-hacks/cordova-plugin-pebblekit.git"
+  },
+  "keywords": [
+    "cordova",
+    "device",
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-ios"
+  ],
+  "author": {
+    "name": "Pebble Technology (c) 2016",
+    "email": "devsupport@pebble.com",
+    "twitter": "@pebbledev"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pebble-hacks/cordova-plugin-pebblekit/issues"
+  },
+  "homepage": "https://github.com/pebble-hacks/cordova-plugin-pebblekit#readme"
+}

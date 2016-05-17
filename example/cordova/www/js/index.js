@@ -18,7 +18,7 @@
  */
 
 var uuid = "ebc92429-483e-4b91-b5f2-ead22e7e002d";
-
+var logs = [];
 var app = {
   // Application Constructor
   initialize: function() {
@@ -39,7 +39,11 @@ var app = {
   // function, we must explicitly call 'app.receivedEvent(...);'
   onDeviceReady: function() {
     app.receivedEvent('deviceready');
-    app.pebbleKit();
+
+    window.pebblekit.setup(uuid, function() {
+      console.log('setup complete');
+      app.pebbleKit();
+    });
   },
 
   // Update DOM on a Received Event
@@ -55,6 +59,12 @@ var app = {
   },
 
   pebbleKit: function() {
+    window.pebblekit.startAppOnPebble('ebc92429-483e-4b91-b5f2-ead22e7e002d', function() {
+      console.log('app started on pebble');
+    }, function (err) {
+      // error
+    });
+
     window.pebblekit.registerReceivedDataHandler(uuid, function(message) {
       if (message['0'] !== 0) {
         console.log('unrecognized app message', message);
@@ -66,7 +76,6 @@ var app = {
     }, function (errorMessage) {
       console.log('got error: ', errorMessage);
     }, true);
-    console.log('receivedDataHandler registered');
   },
 
   testCalendarPermission: function() {
@@ -75,7 +84,6 @@ var app = {
 
       if (!result) {
         window.plugins.calendar.requestReadWritePermission();
-
       } else {
         app.findNextCalendarEvent();
       }
@@ -87,6 +95,7 @@ var app = {
     var startDate = new Date();
     var endDate = new Date();
     endDate.setHours(24, 0, 0, 0); // Nearest midnight in the future
+    console.log('findNextCalendarEvent');
 
     window.plugins.calendar.findEvent(
         undefined, // title
@@ -98,10 +107,19 @@ var app = {
         calendarFindError
     );
 
+    function calendarFindError(message) {
+      console.log(message);
+    }
+
     function calendarFindSuccess(events) {
       console.log('got calendar events: ', events);
       if (events.length === 0) {
         // TODO: No calendar events for today
+        window.pebblekit.sendAppMessage(uuid, {/* no data */}, function () {
+          console.log('ack');
+        }, function () {
+          console.log('nack');
+        });
         return;
       }
 
@@ -132,11 +150,6 @@ var app = {
         console.log('nack');
       });
     }
-
-    function calendarFindError(message) {
-      console.log(message);
-    }
-
   },
 };
 
