@@ -461,7 +461,7 @@ the plugin with the corresponding files in the respective platform build
 directory.
 
 ### Build the Pebble Application
-1. `cd example/cordova`.
+1. `cd example/pebble`.
 2. `pebble build && pebble install --phone <PHONE_IP>` For more help, see the
    [documentation](https://developer.pebble.com/guides/tools-and-resources/pebble-tool/).
 
