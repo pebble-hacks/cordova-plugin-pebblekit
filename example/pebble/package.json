@@ -1,0 +1,37 @@
+{
+  "version": "1.0.0",
+  "author": "Pebble",
+  "private": true,
+  "dependencies": {},
+  "keywords": [
+    "pebble-app"
+  ],
+  "pebble": {
+    "sdkVersion": "3",
+    "resources": {
+      "media": []
+    },
+    "projectType": "native",
+    "uuid": "ebc92429-483e-4b91-b5f2-ead22e7e002d",
+    "messageKeys": {
+      "key_bytes": 1,
+      "key_number": 0,
+      "key_string": 2
+    },
+    "enableMultiJS": true,
+    "displayName": "Cordova Example",
+    "watchapp": {
+      "onlyShownOnCommunication": false,
+      "hiddenApp": false,
+      "watchface": true
+    },
+    "targetPlatforms": [
+      "aplite",
+      "basalt",
+      "chalk",
+      "diorite"
+    ],
+    "capabilities": []
+  },
+  "name": "Cordova Example"
+}

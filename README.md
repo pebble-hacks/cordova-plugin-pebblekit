@@ -32,10 +32,12 @@ __note__ If supporting iOS, the following steps are required to build the
  application for the first time.
 
 1. Open up XCode and open your project's `xcodeproj` file
-   (`<project-directory>/platforms/ios/<project-name>.xcodeproj`).
-2. Click on your project's name on the left pane.
-3. In the `General` tab, expand the `Embedded Binaries` section.
-4. Hit the plus button, and select `PebbleKit.Framework`.
+(`<project-directory>/platforms/ios/<project-name>.xcodeproj`).
+3. Click on your project's name on the left pane.
+4. In the `General` tab, `Linked Frameworks and Libraries`, highlight
+`PebbleKit.Framework` and click `-` to remove it.
+5. Now drag `PebbleKit.Framework` from the `Frameworks` folder in the left pane
+into the `Embedded Binaries` section.
 
 If you run into an `Invalid Provisioning Profile` error:
 
