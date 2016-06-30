@@ -466,14 +466,15 @@ directory.
    [documentation](https://developer.pebble.com/guides/tools-and-resources/pebble-tool/).
 
 ## Debugging
-You can use console.log() statements and breakpoints for debugging your Cordova JS on iOS and
-Android.
+You can use console.log() statements and breakpoints for debugging your Cordova
+JS on iOS and Android.
 
 ### Android
-Your phone needs to be connected via USB with `USB Debugging` enabled. Launch your application:
-`cordova run android --device`. Open Google Chrome on your computer and go to
-[Inspect Devices](chrome://inspect/#devices) and select your Cordova application. You should be
-able to inspect your code and set breakpoints etc.
+Your phone needs to be connected via USB with `USB Debugging` enabled. Launch
+your application: `cordova run android --device`. Open Google Chrome on your
+computer and go to 'Inspect Devices' `chrome://inspect/#devices` and select
+your Cordova application. You should be able to inspect your code and set
+breakpoints etc.
 
 ### iOS
 Your iPhone needs to be unlocked and connected via USB. Now go to `Settings > Safari > Advanced`

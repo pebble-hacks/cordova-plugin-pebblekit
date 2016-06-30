@@ -76,6 +76,7 @@ var app = {
     }, function (errorMessage) {
       console.log('got error: ', errorMessage);
     }, true);
+
   },
 
   testCalendarPermission: function() {
