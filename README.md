@@ -32,10 +32,12 @@ __note__ If supporting iOS, the following steps are required to build the
  application for the first time.
 
 1. Open up XCode and open your project's `xcodeproj` file
-   (`<project-directory>/platforms/ios/<project-name>.xcodeproj`).
-2. Click on your project's name on the left pane.
-3. In the `General` tab, expand the `Embedded Binaries` section.
-4. Hit the plus button, and select `PebbleKit.Framework`.
+(`<project-directory>/platforms/ios/<project-name>.xcodeproj`).
+3. Click on your project's name on the left pane.
+4. In the `General` tab, `Linked Frameworks and Libraries`, highlight
+`PebbleKit.Framework` and click `-` to remove it.
+5. Now drag `PebbleKit.Framework` from the `Frameworks` folder in the left pane
+into the `Embedded Binaries` section.
 
 If you run into an `Invalid Provisioning Profile` error:
 
@@ -459,19 +461,20 @@ the plugin with the corresponding files in the respective platform build
 directory.
 
 ### Build the Pebble Application
-1. `cd example/cordova`.
+1. `cd example/pebble`.
 2. `pebble build && pebble install --phone <PHONE_IP>` For more help, see the
    [documentation](https://developer.pebble.com/guides/tools-and-resources/pebble-tool/).
 
 ## Debugging
-You can use console.log() statements and breakpoints for debugging your Cordova JS on iOS and
-Android.
+You can use console.log() statements and breakpoints for debugging your Cordova
+JS on iOS and Android.
 
 ### Android
-Your phone needs to be connected via USB with `USB Debugging` enabled. Launch your application:
-`cordova run android --device`. Open Google Chrome on your computer and go to
-[Inspect Devices](chrome://inspect/#devices) and select your Cordova application. You should be
-able to inspect your code and set breakpoints etc.
+Your phone needs to be connected via USB with `USB Debugging` enabled. Launch
+your application: `cordova run android --device`. Open Google Chrome on your
+computer and go to 'Inspect Devices' `chrome://inspect/#devices` and select
+your Cordova application. You should be able to inspect your code and set
+breakpoints etc.
 
 ### iOS
 Your iPhone needs to be unlocked and connected via USB. Now go to `Settings > Safari > Advanced`

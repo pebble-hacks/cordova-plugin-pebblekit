@@ -43,14 +43,22 @@
       </feature>
     </config-file>
 
-    <header-file src="src/ios/PebbleKitCordovaWrapper.h"/>
-    <source-file src="src/ios/PebbleKitCordovaWrapper.m"/>
-
     <config-file target="*-Info.plist" parent="UISupportedExternalAccessoryProtocols">
       <array>
         <string>com.getpebble.public</string>
       </array>
     </config-file>
+
+    <config-file target="*-Info.plist" parent="UIBackgroundModes">
+      <array>
+        <string>external-accessory</string>
+        <string>bluetooth-peripheral</string>
+        <string>bluetooth-central</string>
+      </array>
+    </config-file>
+
+    <header-file src="src/ios/PebbleKitCordovaWrapper.h"/>
+    <source-file src="src/ios/PebbleKitCordovaWrapper.m"/>
 
     <framework src="ExternalAccessory.framework" />
     <framework src="libz.dylib" />
@@ -61,12 +69,5 @@
 
     <framework src="src/ios/PebbleKit.framework" custom="true"/>
 
-    <config-file target="*-Info.plist" parent="UIBackgroundModes">
-      <array>
-        <string>external-accessory</string>
-        <string>bluetooth-peripheral</string>
-        <string>bluetooth-central</string>
-      </array>
-    </config-file>
   </platform>
 </plugin>
