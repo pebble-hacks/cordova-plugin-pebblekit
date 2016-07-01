@@ -219,7 +219,7 @@
     }
     NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:uuidString];
 
-    NSDictionary *json = command.arguments[1];
+    NSDictionary *json = (command.arguments.count > 1 ? command.arguments[1] : nil);
     NSMutableDictionary *appMessage = [[NSMutableDictionary alloc] init];
 
     // JSON received by Cordova is not appropriate to send directly to PebbleKit,
@@ -256,8 +256,8 @@
 
         } else {
             NSDictionary *data = @{
-              @"isAck": @YES,
-              @"transactionId": @(-1)
+                @"isAck": @YES,
+                @"transactionId": @(-1)
             };
 
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:data];
@@ -282,8 +282,8 @@
 
     NSString *uuidString = command.arguments.firstObject;
     if (!uuidString) {
-      [self sendErrorPluginResult:command.callbackId messageAsString:ERROR_MSG_APP_UUID_MISSING];
-      return;
+        [self sendErrorPluginResult:command.callbackId messageAsString:ERROR_MSG_APP_UUID_MISSING];
+        return;
     }
     NSUUID *uuid = [[NSUUID alloc] initWithUUIDString:uuidString];
 
@@ -319,9 +319,9 @@
 - (void)pebbleCentral:(PBPebbleCentral *)central watchDidConnect:(PBWatch *)watch isNew:(BOOL)isNew {
     if (self.watch) {
         return;
-    } else {
-        self.watch = watch;
     }
+    
+    self.watch = watch;
 
     [self.watch getVersionInfo:^(PBWatch * _Nonnull watch, PBVersionInfo * _Nonnull versionInfo) {
         NSLog(@"appMessagesSupported: %@", versionInfo.appMessagesSupported ? @"YES" : @"NO");
@@ -353,7 +353,7 @@
     }
 
     if (self.watch == watch) {
-      return;
+        return;
     }
 
     self.watch = nil;
@@ -368,9 +368,9 @@
 }
 
 - (void)sendErrorPluginResult:(NSString *)callbackId messageAsString:(NSString *)message {
-  CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                                                     messageAsString:message];
-  [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
 }
 
 @end
