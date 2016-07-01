@@ -224,26 +224,28 @@
 
     // JSON received by Cordova is not appropriate to send directly to PebbleKit,
     // recreate the dictionary with appropriate types before sending to PebbleKit.
-    for (NSString *key in json) {
-        id value = json[key];
-        NSLog(@"{key=%@, value=%@} class=%@", key, value, [value class]);
+    if([json isKindOf:[NSDictionary class]]) {
+        for (NSString *key in json) {
+            id value = json[key];
+            NSLog(@"{key=%@, value=%@} class=%@", key, value, [value class]);
 
-        NSNumber *keyAsNumber = [NSNumber numberWithInteger:[key integerValue]];
+            NSNumber *keyAsNumber = [NSNumber numberWithInteger:[key integerValue]];
 
-        if ([value isKindOfClass:[NSNumber class]]) {
-            NSNumber *valueAsInt32 = [NSNumber numberWithInt32:(int32_t)[value integerValue]];
-            [appMessage setObject:valueAsInt32 forKey:keyAsNumber];
+            if ([value isKindOfClass:[NSNumber class]]) {
+                NSNumber *valueAsInt32 = [NSNumber numberWithInt32:(int32_t)[value integerValue]];
+                [appMessage setObject:valueAsInt32 forKey:keyAsNumber];
 
-        } else if ([value isKindOfClass:[NSString class]]) {
-            // No type conversion necessary
-            [appMessage setObject:value forKey:keyAsNumber];
+            } else if ([value isKindOfClass:[NSString class]]) {
+                // No type conversion necessary
+                [appMessage setObject:value forKey:keyAsNumber];
 
-        } else {
-            NSString *errorMessage = [NSString stringWithFormat:@"Unsupported type %@ for key %@", [value class], key];
-            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
-                                                              messageAsString:errorMessage];
-            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-            return;
+            } else {
+                NSString *errorMessage = [NSString stringWithFormat:@"Unsupported type %@ for key %@", [value class], key];
+                CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                                                  messageAsString:errorMessage];
+                [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+                return;
+            }
         }
     }
 
