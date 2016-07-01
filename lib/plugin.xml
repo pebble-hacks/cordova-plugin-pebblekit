@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+  xmlns="http://apache.org/cordova/ns/plugins/1.0"
+  id="cordova-plugin-pebblekit"
+  version="0.1.0">
+
+  <name>PebbleKit</name>
+  <description>PebbleKit</description>
+  <license>MIT</license>
+  <keywords>cordova,device,pebble</keywords>
+  <repo>https://github.com/pebble-hacks/cordova-plugin-pebblekit.git</repo>
+
+  <js-module src="www/pebblekit.js" name="pebble">
+    <clobbers target="pebblekit" />
+  </js-module>
+
+  <platform name="android">
+    <config-file target="res/xml/config.xml" parent="/*">
+      <feature name="PebbleKitCordovaWrapper">
+        <param
+          name="android-package"
+          value="com.pebble.cordovapebblekit.PebbleKitCordovaWrapper"/>
+      </feature>
+    </config-file>
+
+    <source-file
+      src="src/android/PebbleKitCordovaWrapper.java"
+      target-dir="src/com/pebble/cordovapebblekit"/>
+
+    <source-file
+      src="src/android/Util.java"
+      target-dir="src/com/pebble/cordovapebblekit"/>
+
+    <framework src="com.getpebble:pebblekit:3.0.0"/>
+  </platform>
+
+  <platform name="ios">
+    <config-file target="config.xml" parent="/*">
+      <feature name="PebbleKitCordovaWrapper">
+        <param
+          name="ios-package"
+          value="PebbleKitCordovaWrapper"/>
+      </feature>
+    </config-file>
+
+    <config-file target="*-Info.plist" parent="UISupportedExternalAccessoryProtocols">
+      <array>
+        <string>com.getpebble.public</string>
+      </array>
+    </config-file>
+
+    <config-file target="*-Info.plist" parent="UIBackgroundModes">
+      <array>
+        <string>external-accessory</string>
+        <string>bluetooth-peripheral</string>
+        <string>bluetooth-central</string>
+      </array>
+    </config-file>
+
+    <header-file src="src/ios/PebbleKitCordovaWrapper.h"/>
+    <source-file src="src/ios/PebbleKitCordovaWrapper.m"/>
+
+    <framework src="ExternalAccessory.framework" />
+    <framework src="libz.dylib" />
+    <framework src="CoreBluetooth.framework" />
+    <framework src="CoreMotion.framework" />
+    <framework src="CFNetwork.framework" />
+    <framework src="MessageUI.framework" />
+
+    <framework src="src/ios/PebbleKit.framework" custom="true"/>
+
+  </platform>
+</plugin>

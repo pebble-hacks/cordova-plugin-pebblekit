@@ -1,0 +1,33 @@
+{
+  "name": "cordova-plugin-pebblekit",
+  "version": "1.0.4",
+  "description": "Create cross platform companion applications for Pebble smartwatch, using PebbleKit for Cordova.",
+  "cordova": {
+    "id": "cordova-plugin-pebblekit",
+    "platforms": [
+      "android",
+      "ios"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pebble-hacks/cordova-plugin-pebblekit.git"
+  },
+  "keywords": [
+    "cordova",
+    "device",
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-ios"
+  ],
+  "author": {
+    "name": "Pebble Technology (c) 2016",
+    "email": "developers@pebble.com",
+    "twitter": "@pebbledev"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pebble-hacks/cordova-plugin-pebblekit/issues"
+  },
+  "homepage": "https://github.com/pebble-hacks/cordova-plugin-pebblekit#readme"
+}
