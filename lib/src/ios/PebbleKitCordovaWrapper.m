@@ -224,7 +224,7 @@
 
     // JSON received by Cordova is not appropriate to send directly to PebbleKit,
     // recreate the dictionary with appropriate types before sending to PebbleKit.
-    if([json isKindOf:[NSDictionary class]]) {
+    if([json isKindOfClass:[NSDictionary class]]) {
         for (NSString *key in json) {
             id value = json[key];
             NSLog(@"{key=%@, value=%@} class=%@", key, value, [value class]);
