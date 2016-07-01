@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-pebblekit",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Create cross platform companion applications for Pebble smartwatch, using PebbleKit for Cordova.",
   "cordova": {
     "id": "cordova-plugin-pebblekit",

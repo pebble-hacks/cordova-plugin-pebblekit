@@ -108,8 +108,22 @@ public class PebbleKitCordovaWrapper extends CordovaPlugin {
             boolean keepAlive = entry.getValue();
             if (keepAlive) continue;
 
+            /* if(mPebbleConnectedBroadcastReceiver == entry.getKey()) {
+                mPebbleConnectedBroadcastReceiver = null;
+            }
+
+            if(mPebbleDisconnectedBroadcastReceiver == entry.getKey()) {
+                mPebbleDisconnectedBroadcastReceiver = null;
+            }*/
+
+            mPebbleConnectedBroadcastReceiver = null;
+            mPebbleConnectedCallbackContext = null;
+            mPebbleDisconnectedBroadcastReceiver = null;
+            mPebbleDisconnectedCallbackContext = null;
+
             Util.tryUnregisterReceiver(cordova.getActivity(), entry.getKey());
             iterator.remove();
+
         }
     }
 

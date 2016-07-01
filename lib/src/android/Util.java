@@ -24,6 +24,7 @@ public class Util {
     // The app UUID will always be the first argument in the `args` JSONArray
     private static final int ARGS_INDEX_APP_UUID = 0;
 
+    // Convert from PebbleDictionary json to simple json format
     public static JSONObject pebbleDictionaryToAppMessageJson(PebbleDictionary pebbleDictionary) {
         JSONObject appMessage = new JSONObject();
         JSONArray pebbleKitAppMessage;
@@ -95,6 +96,7 @@ public class Util {
         return appMessage;
     }
 
+    // Convert from simple json to PebbleDictionary json format
     public static PebbleDictionary jsonToPebbleDictionary(JSONObject data, CallbackContext callbackContext) {
         Iterator<String> keys = data.keys();
         PebbleDictionary pebbleDictionary = new PebbleDictionary();
